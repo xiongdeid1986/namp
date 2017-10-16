@@ -15,5 +15,5 @@ pushd "%CD%"
 CD /D "%~dp0"
 echo Get Administrator Authority Success
 D:
-cd D:\web_server\www_root
+cd D:\web_server\app\tools\node_tools
 cmd

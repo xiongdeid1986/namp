@@ -1,4 +1,4 @@
-rem Ëé∑ÂèñÁÆ°ÁêÜÂëòÊùÉÈôê
+@echo off
 >nul 2>&1 "%SYSTEMROOT%\system32\cacls.exe" "%SYSTEMROOT%\system32\config\system"
 if '%errorlevel%' NEQ '0' (
 goto UACPrompt
@@ -12,18 +12,17 @@ exit /B
 if exist "%temp%\getadmin.vbs" ( del "%temp%\getadmin.vbs" )
 pushd "%CD%"
 CD /D "%~dp0"
+title ^*∂Øµ„ ¿ºÕø∆ºº(www.ddweb.com.cn) NAMP--^>apache÷ÿ∆Ù
+echo ^*
+echo ^*
+echo -----------------------------©∏(^o^)©º-------------------
+echo ^*∂Øµ„ ¿ºÕø∆ºº(www.ddweb.com.cn) NAMP--^>apache÷ÿ∆Ù 
+echo ^*
+echo ^*
+echo ^*
+taskkill /F /IM nginx.exe
+taskkill /F /IM php-cgi.exe
 net stop httpd
-cd D:\web_server\Nginx
-echo "ÂºÄÂßãÈáçÂêØNginx "
-taskkill /F /IM nginx.exe > nul
-taskkill /F /IM php-cgi.exe > nul
-D:\web_server\tools\RunHiddenConsole D:\web_server\php\php-5.2.17\php-cgi.exe -b 127.0.0.1:9052 -c D:\web_server\php\php-5.2.17\php.ini
-D:\web_server\tools\RunHiddenConsole D:\web_server\php\php53n\php-cgi.exe -b 127.0.0.1:9053 -c D:\web_server\php\php53n\php.ini
-D:\web_server\tools\RunHiddenConsole D:\web_server\php\php54n\php-cgi.exe -b 127.0.0.1:9054 -c D:\web_server\php\php54n\php.ini
-D:\web_server\tools\RunHiddenConsole D:\web_server\php\php55n\php-cgi.exe -b 127.0.0.1:9055 -c D:\web_server\php\php55n\php.ini
-D:\web_server\tools\RunHiddenConsole D:\web_server\php\php-5.6.27-nts\php-cgi.exe -b 127.0.0.1:9056 -c D:\web_server\php\php-5.6.27-nts\php.ini
-D:\web_server\tools\RunHiddenConsole D:\web_server\php\php-7.0.12-nts\php-cgi.exe -b 127.0.0.1:9070 -c D:\web_server\php\php-7.0.12-nts\php.ini
-D:\web_server\tools\RunHiddenConsole D:\web_server\php\php-7.1.4-nts\php-cgi.exe -b 127.0.0.1:9070 -c D:\web_server\php\php-7.1.4-nts\php.ini
-start nginx.exe
-echo "ÈáçÂêØÁªìÊùü "
+net start httpd
+
 cmd

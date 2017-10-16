@@ -2,6 +2,8 @@ var colors = require('colors');
 var fs = require('fs');
 var child_process = require('child_process');
 var iconv = require('iconv-lite');
+var encoding = 'cp936';
+var binaryEncoding = 'binary';
 var unzip = require('unzip');
 var spawn = child_process.spawn;
 colors.setTheme({silly: 'rainbow', input: 'grey', verbose: 'cyan', prompt: 'red', info: 'green', data: 'blue', help: 'cyan', warn: 'yellow', debug: 'magenta', error: 'red'});
@@ -118,7 +120,7 @@ exports.check_path = function(path,callback){
 }
 
 /*设置apacheconf文件*/
-exports.set_apache_conf = function(app_base_path,www_root){
+exports.set_apache_conf = function(app_base_path,www_root,base_path,callback){
     var apache_base  = app_base_path+'apache/';
     var template_path = "./template/";
     var apache_conf_path = template_path+'apache/conf/';
@@ -136,6 +138,7 @@ exports.set_apache_conf = function(app_base_path,www_root){
     "extra/httpd-php-sapi54.conf",
     "extra/httpd-php-sapi55.conf",
     "extra/httpd-php-sapi71.conf"];
+    var n = 0;
     (function Replace_conf(i){
         var config_name = apache_confs[i];
         var config_path = apache_conf_path+config_name;
@@ -143,14 +146,19 @@ exports.set_apache_conf = function(app_base_path,www_root){
         fs.readFile(config_path,'utf8',function(e,data){
             if(!e){
                 data = data.toString();
-                data = data.replace(/\%base\_path\%/g,apache_base);
+                data = data.replace(/\%base\_path\%/g,base_path);
                 data = data.replace(/\%www\_root\%/g,www_root);
-                data = data.replace(/\%app\_path\%/g,app_base_path);
+                data = data.replace(/\%app\_base\_path\%/g,app_base_path);
                 fs.writeFile(save_path,data,function(e){
                     if(e){
                         console.log("apache 配置文件失败.".red);
                     }else{
+                        n++;
                         console.log("apache ".info+config_name.info+" 配置文件设置完毕.".info);
+                        if(n == apache_confs.length){
+                            console.log("Apache 全部配置完毕 ●-●  ".info);
+                            callback();
+                        }
                     }
                     i++;
                     if(i<apache_confs.length){
@@ -163,7 +171,7 @@ exports.set_apache_conf = function(app_base_path,www_root){
 }
 
 /*设置PHP*/
-exports.set_php_ini = function(app_base_path){
+exports.set_php_ini = function(app_base_path,callback){
     /*设置php.ini*/
     var template_path = "./template/";
     var template_file_path = template_path+"php/";
@@ -180,13 +188,15 @@ exports.set_php_ini = function(app_base_path){
                         data = data.replace(/\%php\_version\%/g,file_name);
                         fs.writeFile(save_path,data,function(e){
                             if(e){
-                                console.log("php 配置文件失败.".red);
+                                console.log(e+"php 配置文件失败.".red);
                             }else{
                                 console.log("php ".info+file_name.info+" 设置完毕.".info);
                             }
                             i++;
                             if(i<folder.length){
                                 read_write(i);
+                            }else{
+                                callback();
                             }
                         });
                     }else{
@@ -198,7 +208,7 @@ exports.set_php_ini = function(app_base_path){
     });
 }
 /*设置Nginx*/
-exports.set_nginx_conf = function(app_base_path,www_root){
+exports.set_nginx_conf = function(app_base_path,www_root,callback){
     /*设置 nginx*/
     var save_base_path = app_base_path+'nginx/';
     var vhost_base_path = save_base_path+'conf/vhost/';
@@ -246,7 +256,8 @@ exports.set_nginx_conf = function(app_base_path,www_root){
                                             if(e){
                                                 console.log(e);
                                             }
-                                            console.log("nginx 初始化成功~.".info);
+                                            console.log(" ●-● nginx 初始化成功~  ●-● ".info);
+                                            callback();
                                         })
                                     });
                                 }
@@ -260,8 +271,7 @@ exports.set_nginx_conf = function(app_base_path,www_root){
 }
 
 /*解压并安装软件*/
-exports.unzip_set_software = function(unzip_name,unzip_path,zip_version,app_base_path,base_path,callback){
-    /*需要解压的所有 软件版本*/
+exports.unzip_set_software = function(unzip_name,unzip_path,zip_version,app_base_path,base_path,callback,exists_path){/*需要解压的所有 软件版本*/
     console.log("----------------开始解压 [".info+unzip_name.info+"] (＝^ω^＝)--------------------------".info);
     var n=0;
     (function unzip_software(i){
@@ -275,35 +285,41 @@ exports.unzip_set_software = function(unzip_name,unzip_path,zip_version,app_base
                     unzip_software(i);
                 });
             }else{
-                var suffix = ".zip";
-                var zip_name = zip_version[i]+suffix;
-                var extract = unzip.Extract({ path: unzip_path});
-                extract.on('error', function(err) {
-                    console.log("error++++++++++++++++++++++");
-                    console.log(err);
-                    //解压异常处理
-                });
-                extract.on('finish', function() {
-                    n++;/*每个完成的计数器*/
-                    var plan = "解压完成["+n+"/"+zip_version.length+"]";
-                    console.log(unzip_name.rainbow+" ●-●>--> ".info + zip_name.red+" ~~~~".info + plan.info+"~~~~ (＝^ω^＝)".info);
-                    if(n == zip_version.length){
-                        console.log(unzip_name.rainbow+" ●-●>--> 全部解压完毕 (((m -_-)m ".info);
-                        callback(zip_version);
+                if(exists_path){/*如果存在则不必重复解压..*/
+                    console.log(unzip_name.rainbow+" ●-●>--> 已经被解压 (((m -_-)m ".info);
+                    callback(zip_version);
+                    return;
+                }else{
+                    var suffix = ".zip";
+                    var zip_name = zip_version[i]+suffix;
+                    var extract = unzip.Extract({ path: unzip_path});
+                    extract.on('error', function(err) {
+                        console.log("error++++++++++++++++++++++");
+                        console.log(err);
+                        //解压异常处理
+                    });
+                    extract.on('finish', function() {
+                        n++;/*每个完成的计数器*/
+                        var plan = "解压完成["+n+"/"+zip_version.length+"]";
+                        console.log(unzip_name.rainbow+" ●-●>--> ".info + zip_name.red+" ~~~~".info + plan.info+"~~~~ (＝^ω^＝)".info);
+                        if(n == zip_version.length){
+                            console.log(unzip_name.rainbow+" ●-●>--> 全部解压完毕 (((m -_-)m ".info);
+                            callback(zip_version);
+                        }
+                        //解压完成处理
+                    });
+                    var zip_path = './../core_software/'+zip_name;
+                    fs.exists(zip_path,function(exists){
+                        if(!exists){
+                            var exists_text = ' ●-●>-->' + zip_path + ' 文件不存在~~~ ';
+                            console.log(exists_text.red);
+                        }
+                    });
+                    fs.createReadStream(zip_path).pipe(extract);
+                    i++;
+                    if(i < zip_version.length){
+                        unzip_software(i);
                     }
-                    //解压完成处理
-                });
-                var zip_path = './../core_software/'+zip_name;
-                fs.exists(zip_path,function(exists){
-                    if(!exists){
-                        var exists_text = ' ●-●>-->' + zip_path + ' 文件不存在~~~ ';
-                        console.log(exists_text.red);
-                    }
-                });
-                fs.createReadStream(zip_path).pipe(extract);
-                i++;
-                if(i < zip_version.length){
-                    unzip_software(i);
                 }
             }
         });
@@ -311,9 +327,30 @@ exports.unzip_set_software = function(unzip_name,unzip_path,zip_version,app_base
 }
 
 /*安装mariadb*/
-exports.set_mariadb = function(app_base_path,base_path,callback){
-    var mysql_data = base_path+'mysql_data/';
+exports.set_mariadb = function(app_base_path,base_path,default_mariadb_data,callback){
     var mariadb_path = app_base_path+'mariadb/data/';
+    console.log("●-●配置并安装 MariaDB (原MySQL) ●-●".info);
+    var template_path = "./template/";
+    var mariadb_template_path = template_path+'mariadb/my.ini';
+    fs.readFile(mariadb_template_path,'utf8',function(e,data){
+        if(e){
+            console.log(e);
+        }else{
+            data = data.toString();
+            data = data.replace(/\%mariadb\_path\%/g,app_base_path+'mariadb');
+            data = data.replace(/\%mariadb\_data\_path\%/g,default_mariadb_data);
+            fs.writeFile(app_base_path+'/mariadb/my.ini',data,function(e){
+                if(e){
+                    console.log(e);
+                }
+                callback();
+                return;
+            })
+        }
+    });
+    return;
+    /*以下代码废弃*/;
+    var mysql_data = base_path+'mysql_data/';
     (function copy_folder(mariadb_path,mysql_data,n){
         fs.readdir(mariadb_path,function(e,files){
             if(e){
@@ -343,9 +380,9 @@ exports.set_mariadb = function(app_base_path,base_path,callback){
                                     console.log(e);
                                 }else{
                                     fs.writeFile(to_file,d,function(e){
-                                        if(!e){
-                                            console.log('mysql 数据库复制成功'.info);
-                                        }
+                                        //if(!e){
+                                            //console.log('mysql 数据库复制成功'.info);
+                                        //}
                                         if(i == len && n == 2){
                                             console.log("●-●配置并安装 MariaDB (原MySQL) ●-●".info);
                                             var template_path = "./template/";
@@ -382,28 +419,91 @@ exports.set_mariadb = function(app_base_path,base_path,callback){
     })(mariadb_path,mysql_data,0);
 }
 
-/*执行一个 spawn 命令*/
-exports.spawn = function (command,server_name/*服务名,用于判断该服务是否已经被安装*/){
-    var command_file = "./tmp/"+server_name+".bat";
-    fs.writeFile(command_file,command,function(e){
-        child_process.execFile(command_file,function(err,standard_output,standard_error){
-            var success = "success: =>" +standard_output;
-            var fail = "fail: =>" +standard_error;
-            console.log(success.info);
-            console.log(fail.red);
+/*执行一组 spawn 命令*/
+exports.spawn = function (command,callback/*服务名,用于判断该服务是否已经被安装*/){
+    var command_all = '';
+    (function execCommand(i){
+        var command_text = command[i];
+        command_all += command_text+"\r\n";
+        child_process.exec(command_text,{ encoding: binaryEncoding },function(err,standard_output,standard_error){
+            /*必须转码为 gbk*/
+            var success =  iconv.decode(new Buffer(standard_output, binaryEncoding), encoding);
+            var fail =  iconv.decode(new Buffer(standard_error, binaryEncoding), encoding);
+            if(success){
+                console.log("success: =>".red + success.red);
+            }
+            if(fail){
+                console.log("fail: =>".yellow + fail.yellow + " 命令行 => ".red+command_text.red);
+            }
+            i++;
+            if(i < command.length){
+                execCommand(i);
+            }else{
+                if(callback){
+                    //command_all = command_all.replace(/\//g,"\\");
+                    callback(command_all);
+                }
+            }
         });
-    });
-    return;
-    var spawn_r = spawn(command);
-    spawn_r.stdout.on("data",function(data){
-        var command_result = `${server_name} 安装成功~~`+data;
-        console.log(command_result.info);
-        return;
-    });
-    spawn_r.stderr.on("data",function(data){
-        var command_result = `${server_name} 安装失败~~`+data;
-        console.log(command_result.red);
-        return;
+    })(0);
+}
+
+exports.save_command = function(command_text,command_name,base_path,path,icon_number,is_admin,callback){
+    var path = base_path+'app/tools/'+path;
+    var command_title = '^*动点世纪科技(www.ddweb.com.cn) NAMP--^>'+command_name;
+    command_text = 'title '+command_title+"\r\n"+
+        'echo ^*\r\n'+
+        'echo ^*\r\n'+
+        'echo -----------------------------└(^o^)┘-------------------\r\n' +
+        'echo '+command_title+' \r\n' +
+        'echo ^*\r\n'+
+        'echo ^*\r\n'+
+        'echo ^*\r\n'+
+        command_text;
+    var admin_command = '@echo off\r\n'+
+        '>nul 2>&1 "%SYSTEMROOT%\\system32\\cacls.exe" "%SYSTEMROOT%\\system32\\config\\system"\r\n' +
+        'if \'%errorlevel%\' NEQ \'0\' (\r\n' +
+        'goto UACPrompt\n' +
+        ') else ( goto gotAdmin )\r\n' +
+        ':UACPrompt\r\n' +
+        'echo Set UAC = CreateObject^("Shell.Application"^) > "%temp%\\getadmin.vbs"\r\n' +
+        'echo UAC.ShellExecute "%~s0", "", "", "runas", 1 >> "%temp%\\getadmin.vbs"\r\n' +
+        '"%temp%\\getadmin.vbs"\r\n' +
+        'exit /B\r\n' +
+        ':gotAdmin\r\n' +
+        'if exist "%temp%\\getadmin.vbs" ( del "%temp%\\getadmin.vbs" )\r\n' +
+        'pushd "%CD%"\r\n' +
+        'CD /D "%~dp0"\r\n';
+    if(is_admin){
+        command_text = admin_command+command_text;
+    }
+    command_text += '\r\ncmd';
+    command_text = iconv.encode(command_text, 'gbk');
+    fs.writeFile(path,command_text,function(e){
+        if(e){
+            console.log(e);
+        }
+        var success = "生成"+command_name+"成功 -_-";
+        console.log(success.info);
+        var url_file = `${base_path}${command_name}.url`;
+        create_link(path,url_file,icon_number,function(){
+            callback();
+        });
+
     });
 }
+function create_link(path,url_file,icon_number,callback){
+    child_process.exec(`echo [InternetShortcut]>>"${url_file}"`,function(err,standard_output,standard_error){
+        child_process.exec(`echo URL="${path}">>"${url_file}"`,function(err,standard_output,standard_error){
+            child_process.exec(`echo IconIndex=${icon_number}>>"${url_file}"`,function(err,standard_output,standard_error){
+                child_process.exec(`echo IconFile=%SystemRoot%/system32/SHELL32.dll>>"${url_file}"`,function(err,standard_output,standard_error){
+                    if(callback){
+                        callback();
+                    }
+                });
+            });
+        });
+    });
+}
+exports.create_link = create_link;
 //module.exports = function_global;
