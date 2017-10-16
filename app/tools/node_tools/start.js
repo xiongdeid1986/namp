@@ -1,12 +1,10 @@
 const readline = require('readline');
 const fs = require('fs');
-const child_process = require('child_process');
 var function_global = require("./function.global/function.global.js");
 var echo_info = function_global.echo_info;
 var step = function_global.step;
 var comfm = function_global.comfm;
 var path = require('path');
-var iconv = require('iconv-lite');
 echo_info('\033[2J');
 console.log("-------------------------------------------------------------".info);
 console.log("集成系统...(Node.js)".info);

@@ -17,8 +17,8 @@
       <file leaf-file-name="start.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/start.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="438">
-              <caret line="118" column="35" lean-forward="false" selection-start-line="118" selection-start-column="35" selection-end-line="118" selection-end-column="35" />
+            <state relative-caret-position="90">
+              <caret line="3" column="42" lean-forward="true" selection-start-line="3" selection-start-column="42" selection-end-line="3" selection-end-column="42" />
               <folding />
             </state>
           </provider>
@@ -71,7 +71,6 @@
       <find>config_base_path</find>
       <find>Apache24</find>
       <find>vhost</find>
-      <find>child_process</find>
       <find>配置并安装</find>
       <find>funciong_global</find>
       <find>adm_zip</find>
@@ -95,6 +94,7 @@
       <find>unzip_set_software</find>
       <find>spawn</find>
       <find>mariadb_path</find>
+      <find>child_process</find>
     </findStrings>
     <replaceStrings>
       <replace />
@@ -202,12 +202,12 @@
       <workItem from="1508138577039" duration="7843000" />
       <workItem from="1508147819204" duration="5432000" />
       <workItem from="1508173708642" duration="12612000" />
-      <workItem from="1508188333718" duration="3696000" />
+      <workItem from="1508188333718" duration="3918000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="63916000" />
+    <option name="totallyTimeSpent" value="64138000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="974" extended-state="6" />
@@ -382,8 +382,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/start.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="438">
-          <caret line="118" column="35" lean-forward="false" selection-start-line="118" selection-start-column="35" selection-end-line="118" selection-end-column="35" />
+        <state relative-caret-position="90">
+          <caret line="3" column="42" lean-forward="true" selection-start-line="3" selection-start-column="42" selection-end-line="3" selection-end-column="42" />
           <folding />
         </state>
       </provider>
