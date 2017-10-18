@@ -506,4 +506,44 @@ function create_link(path,url_file,icon_number,callback){
     });
 }
 exports.create_link = create_link;
+
+/*查询系统是否有该服务*/
+function is_server(server_name,callback){
+    child_process.exec(`SC QUERY "${server_name}"`,{ encoding: binaryEncoding },function(err,standard_output,standard_error){
+        let result = standard_output + standard_error ;
+        result = iconv.decode(new Buffer(result, binaryEncoding), encoding);
+        if(/^[\s\r\n]*SERVICE\_NAME\:\s*[a-zA-Z0-9]/.test(result)){
+            var is_server = 0;
+        }else{
+            var is_server = 1;
+        }
+        callback(is_server);
+    });
+exports.is_server = is_server;
+}
+/*查询服务是否运行*/
+exports.server_is_run = function(server_name,callback){
+    /*0运行中
+    1未运行
+    2没有安装
+    * */
+    is_server(server_name,function(is_server){
+        if(!is_server){
+            var is_run = 2;/*没有安装该服务*/
+            callback(is_run);
+        }else{
+            child_process.exec(`SC QUERY "${server_name}"`,{ encoding: binaryEncoding },function(err,standard_output,standard_error){
+                let result = standard_output + standard_error ;
+                result = iconv.decode(new Buffer(result, binaryEncoding), encoding);
+                console.log(result);
+                if(/\s*STATE\s*\:\s*[0-9]*\sSTOPPED*/.test(result)){
+                    var is_run = 1;
+                }else{
+                    var is_run = 0;
+                }
+                callback(is_run);
+            });
+        }
+    });
+}
 //module.exports = function_global;
