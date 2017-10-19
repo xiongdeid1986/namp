@@ -519,13 +519,11 @@ function is_server(server_name,callback){
         }
         callback(is_server);
     });
-exports.is_server = is_server;
 }
+exports.is_server = is_server;
 /*查询服务是否运行*/
 exports.server_is_run = function(server_name,callback){
-    /*0运行中
-    1未运行
-    2没有安装
+    /*0运行中 1未运行 2没有安装
     * */
     is_server(server_name,function(is_server){
         if(!is_server){
