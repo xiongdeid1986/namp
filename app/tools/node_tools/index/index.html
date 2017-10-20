@@ -9,14 +9,12 @@
     <link href="assets/css/bootstrap.css" rel="stylesheet" />
     <link href="assets/css/font-awesome.css" rel="stylesheet" />
     <link href="assets/css/style.css" rel="stylesheet" />
-	<style>
-	body{
-		-webkit-app-region: drag;
-	}
-	button,a{
-		-webkit-app-region: no-drag;
-	}
-	</style>
+    <script src="assets/js/jquery-1.10.2.js" type="text/javascript"></script>
+	<script>if (typeof module === 'object') {window.jQuery = window.$ = module.exports;};</script>
+	<script>
+	/* node.js ipcMain 通信模块*/
+	var ipcRenderer = require("electron").ipcRenderer;
+	</script>
 </head>
 <body>
     <!-- LOGO HEADER END-->
@@ -30,12 +28,37 @@
 			<a href="#" class="btn btn-default btn-xs pull-right max" style="margin-left:10px;"><i class="fa fa-window-maximize"></i>  </a>
 			<a href="#" class="btn btn-default btn-xs pull-right min" style="margin-left:10px;"><i class="fa fa-window-minimize"></i>  </a>
 			</h4>
-                
-				
             </div>
-
         </div>
 		</section>
+	<script type="text/javascript">
+	/*与node.js的放大,缩小功能模块*/
+	$(document).delegate(".closed","click",function(){
+		ipcRenderer.send("closed");
+	})
+	
+	var isBig=true;//窗口放大还原标示
+
+  //关闭窗口
+    $(document).on("click",".closed",function(){
+        ipcRenderer.send('window-all-closed');
+    });
+    //最大化
+    $(document).on("click",".max",function () {
+        if(isBig){
+            $(this).children("i").attr('class','fa fa-window-restore');
+            ipcRenderer.send('show-window');
+        }else{
+            $(this).children("i").attr('class','fa fa-window-maximize');
+            ipcRenderer.send('orignal-window');
+        }
+        isBig=!isBig;
+    });
+    //最小化
+    $(document).on("click",".min",function () {
+        ipcRenderer.send('hide-window');
+    });
+	</script>
     <div class="content-wrapper" >
          <div class="container">
              
@@ -162,37 +185,7 @@
 
     </div>
     </div>
-    <script src="assets/js/jquery-1.10.2.js" type="text/javascript"></script>
-	<script>if (typeof module === 'object') {window.jQuery = window.$ = module.exports;};</script>
-	<script type="text/javascript">
-	var ipcRenderer = require("electron").ipcRenderer;
-	$(document).delegate(".closed","click",function(){
-		ipcRenderer.send("closed");
-	})
-	
-	var isBig=true;//窗口放大还原标示
 
-  //关闭窗口
-    $(document).on("click",".closed",function(){
-        ipcRenderer.send('window-all-closed');
-    });
-    //最大化
-    $(document).on("click",".max",function () {
-        if(isBig){
-            $(this).children("i").attr('class','fa fa-window-restore');
-            ipcRenderer.send('show-window');
-        }else{
-            $(this).children("i").attr('class','fa fa-window-maximize');
-            ipcRenderer.send('orignal-window');
-        }
-        isBig=!isBig;
-    });
-    //最小化
-    $(document).on("click",".min",function () {
-        ipcRenderer.send('hide-window');
-    });
-	
-	</script>
     <script src="assets/js/bootstrap.js" type="text/javascript"></script>
   
 </body>

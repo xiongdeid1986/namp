@@ -21,9 +21,19 @@
 
 .icon-apaqiapache:before { content: "\e61e"; }
 
+.icon-tools:before { content: "\e619"; }
+
+.icon-php:before { content: "\f0024"; }
+
 .icon-logo:before { content: "\e603"; }
 
+.icon-nginx:before { content: "\e729"; }
+
+.icon-php1:before { content: "\e651"; }
+
 .icon-nodejs:before { content: "\e655"; }
+
+.icon-php2:before { content: "\e685"; }
 
 .icon-jszhuanhuan:before { content: "\e695"; }
 
@@ -33,27 +43,49 @@
 
 .icon-group15copy:before { content: "\e659"; }
 
-.icon-php:before { content: "\e504"; }
+.icon-database:before { content: "\e61b"; }
+
+.icon-php3:before { content: "\e625"; }
+
+.icon-mongodb:before { content: "\e657"; }
+
+.icon-php4:before { content: "\e504"; }
 
 .icon-xingzhuang:before { content: "\e664"; }
 
-.icon-php1:before { content: "\e613"; }
+.icon-php5:before { content: "\e505"; }
 
-.icon-nginx:before { content: "\e667"; }
+.icon-ApacheActiveMQ:before { content: "\e656"; }
+
+.icon-php6:before { content: "\e613"; }
+
+.icon-PHP:before { content: "\e513"; }
+
+.icon-nginx1:before { content: "\e667"; }
+
+.icon-Server:before { content: "\eabd"; }
 
 .icon-MariaDB:before { content: "\e65b"; }
 
-
+.icon-php7:before { content: "\e660"; }
 
 /* =============================================================
    GENERAL STYLES
  ============================================================ */
 
+/*可移动区域*/
+body{
+    -webkit-app-region: drag;
+}
+/*不可移动区域*/
+button,a,input,select,label,textarea{
+    -webkit-app-region: no-drag;
+}
 
 body {
     font-family: 'Open Sans', sans-serif;
     line-height:28px;
-   
+    padding-top: 41px;
 }
 .set-radius-zero {
     border-radius:0px;
@@ -97,6 +129,9 @@ body {
     border-bottom:2px solid #9170E4;
     width:100%;
 	padding:0 25px;
+    position: fixed;
+    top: 0;
+    z-index: 1000;
 }
 .menu-top-active {
     background-color:#eeeeee;

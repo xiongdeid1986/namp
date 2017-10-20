@@ -1,6 +1,6 @@
 const readline = require('readline');
 const fs = require('fs');
-var function_global = require("./function.global/function.global.js");
+var function_global = require("./function.global/function_global.js");
 var echo_info = function_global.echo_info;
 var step = function_global.step;
 var comfm = function_global.comfm;

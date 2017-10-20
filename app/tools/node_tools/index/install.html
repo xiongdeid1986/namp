@@ -1,0 +1,216 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <title>安装程序</title>
+    <link href="assets/css/bootstrap.css" rel="stylesheet" />
+    <link href="assets/css/font-awesome.css" rel="stylesheet" />
+    <link href="assets/css/style.css" rel="stylesheet" />
+    <script src="assets/js/jquery-1.10.2.js" type="text/javascript"></script>
+	<script>if (typeof module === 'object') {window.jQuery = window.$ = module.exports;};</script>	<script>
+	/* node.js ipcMain 通信模块*/
+	var ipcRenderer = require("electron").ipcRenderer;
+	</script>
+</head>
+<body>
+<section class="menu-section">
+<div class="row">
+	<div class="col-md-12">
+	<h4>欢迎使用,请先安装初始化....
+	<a href="#" class="btn btn-danger btn-xs pull-right closed" style="margin-left:10px;"><i class="fa fa-times"></i> 关闭 </a>
+	<a href="#" class="btn btn-default btn-xs pull-right max" style="margin-left:10px;"><i class="fa fa-window-maximize"></i>  </a>
+	<a href="#" class="btn btn-default btn-xs pull-right min" style="margin-left:10px;"><i class="fa fa-window-minimize"></i>  </a>
+	</h4>
+	</div>
+
+</div>
+</section>
+
+	<script type="text/javascript">
+	/*与node.js的放大,缩小功能模块*/
+	$(document).delegate(".closed","click",function(){
+		ipcRenderer.send("closed");
+	})
+	
+	var isBig=true;//窗口放大还原标示
+
+  //关闭窗口
+    $(document).on("click",".closed",function(){
+        ipcRenderer.send('window-all-closed');
+    });
+    //最大化
+    $(document).on("click",".max",function () {
+        if(isBig){
+            $(this).children("i").attr('class','fa fa-window-restore');
+            ipcRenderer.send('show-window');
+        }else{
+            $(this).children("i").attr('class','fa fa-window-maximize');
+            ipcRenderer.send('orignal-window');
+        }
+        isBig=!isBig;
+    });
+    //最小化
+    $(document).on("click",".min",function () {
+        ipcRenderer.send('hide-window');
+    });
+	</script>
+     <!-- MENU SECTION END-->
+    <div class="content-wrapper">
+         <div class="container">
+             <div class="row">
+            <div class="col-md-6 col-sm-6 col-xs-12">
+               <div class="panel panel-info">
+                        <div class="panel-heading">
+                           基本信息
+                        </div>
+                        <div class="panel-body">
+                            <form role="form" id="install">
+                                <div class="form-group has-success">
+                                    <label class="control-label"  id="web_server" style="color: #3c763d;">选择网页服务器</label>
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label"  style="color: #3c763d;">默认端口</label>
+                                    <div class="input-group" style="margin-bottom: 15px;">
+                                          <span class="form-group input-group-btn">
+                                            <button class="btn btn-default" type="button" style="width: 120px; text-align: center;color: #3c763d;">HTTP</button>
+                                          </span>
+                                        <input type="number" class="form-control" name="http_port" value="80"  style="color: #3c763d;">
+                                    </div>
+                                    <div class="input-group">
+                                              <span class="form-group input-group-btn">
+                                                <button class="btn btn-default" type="button" style="width: 120px; text-align: center;color: #3c763d;">MySql</button>
+                                              </span>
+                                        <input type="number" class="form-control" name="mariadb_port" value="3306" style="color: #3c763d;">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label"  style="color: #3c763d;">默认目录</label>
+                                    <div class="input-group" style="margin-bottom: 15px;">
+                                          <span class="form-group input-group-btn">
+                                            <button class="btn btn-default" type="button" style="width: 120px; text-align: center;color: #8a6d3b;">网站目录</button>
+                                          </span>
+                                        <input type="text" class="form-control" name="www_root" value="" style="color: #8a6d3b;">
+                                    </div>
+                                    <div class="input-group" style="margin-bottom: 15px;">
+                                              <span class="form-group input-group-btn">
+                                                <button class="btn btn-default" type="button" style="width: 120px; text-align: center;color: #8a6d3b;">MariaDB</button>
+                                              </span>
+                                        <input type="text" class="form-control" name="mysql_data" value="" style="color: #8a6d3b;">
+                                    </div>
+                                    <div class="input-group">
+                                              <span class="form-group input-group-btn">
+                                                <button class="btn btn-default" type="button" style="width: 120px; text-align: center;color: #8a6d3b;">MongoDB</button>
+                                              </span>
+                                        <input type="text" class="form-control" name="mongodb_data" value="" style="color: #8a6d3b;">
+                                    </div>
+                                </div>
+                                <script type="text/javascript">
+                                    $.ajax({
+                                        async: false,
+                                        url: "http://127.0.0.1:54222/show_letter",
+                                        type: "GET",
+                                        dataType: 'jsonp',
+                                        jsonp: 'jsoncallback',
+                                        data: {},
+                                        timeout: 20,
+                                        beforeSend: function () {
+                                            //jsonp 方式此方法不被触发.原因可能是dataType如果指定为jsonp的话,就已经不是ajax事件了
+                                        },
+                                        success: function (json) {//客户端jquery预先定义好的callback函数,成功获取跨域服务器上的json数据后,会动态执行这个callback函数)
+                                            console.log(json)
+                                        }
+                                    })
+                                </script>
+                                  
+                                 
+                                        <button type="submit" class="btn btn-info">开始安装 </button>
+
+                                    </form>
+                            </div>
+                        </div>
+                            </div>
+                 <div class="col-md-6 col-sm-6 col-xs-12">
+                     <div class="panel panel-default">
+                         <div class="panel-heading">
+                             集成的工具
+                         </div>
+                         <div class="panel-body">
+                             <form role="form" id="software_all">
+                             </form>
+                         </div>
+                     </div>
+                 </div>
+        </div>
+    </div>
+    </div>
+<script type="text/javascript">
+
+        $.ajax({
+            async:false,
+            url: "http://127.0.0.1:54222/get_versions",
+            type: "GET",
+            dataType: 'jsonp',
+            jsonp: 'jsoncallback',
+            data: {
+
+            },
+            timeout: 20,
+            beforeSend: function(){
+                //jsonp 方式此方法不被触发.原因可能是dataType如果指定为jsonp的话,就已经不是ajax事件了
+            },
+            success: function (json) {//客户端jquery预先定义好的callback函数,成功获取跨域服务器上的json数据后,会动态执行这个callback函数
+                var software_all = "";
+                for(var p in json){
+                    var j = json[p]
+                    switch (p){
+                        case "php":
+                            var phphtml = "";
+                            for(var p_php in j){
+                                phphtml+='<div class="checkbox">';
+                                phphtml+='<label>';
+                                phphtml+=` <input type="checkbox" checked="checked" class="php_verstion" value="${p_php}"> <i class="icon iconfont icon-php fa-1x btn-success"></i> ${p_php}</label>`;
+                                phphtml+='</div>';
+                            }
+                            $('#php_versions').html(phphtml)
+
+                            break;
+                        case "web_server":
+                            var server_html=""
+                            for(var server_p in j){
+                                server_html+='<div class="radio">';
+                                server_html+='<label>';
+                                server_html+=` <input type="radio" checked="checked" name="web_server" value="${server_p}"> <i class="${j[server_p].icon}"></i> ${server_p}</label>`;
+                                server_html+='</div>';
+                            }
+                            $('#web_server').after(server_html)
+                            break;
+                    }
+                    software_all+=`<span class="text-muted">${p}</span><hr style="margin-top: 2px; margin-bottom: 2px; border: 0; border-top: 1px solid #eee;" />`;
+                    software_all+='<div style="margin-bottom: 8px;">';
+                    for(var p2 in j){
+                        var j2 = j[p2]
+                        software_all+= `<a href="javascript:;" class="btn btn-default btn-xs" style="margin-right:5px;"><i title="${p2}" alt="${p2}"  class="${j2.icon} text-danger"></i> ${p2}</a>`;
+                    }
+                    software_all+='</div>';
+                }
+                $('#software_all').html(software_all)
+            },
+            complete: function(XMLHttpRequest, textStatus){
+
+            },
+            error: function(xhr){
+                //jsonp 方式此方法不被触发.原因可能是dataType如果指定为jsonp的话,就已经不是ajax事件了
+                //请求出错处理
+            }
+        });
+    $(document).on("keydown",function(event){
+        if(event.keyCode == 123){
+            ipcRenderer.send('dev-tools-window');
+        }
+    })
+</script>
+</body>
+</html>
