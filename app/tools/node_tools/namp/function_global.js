@@ -7,7 +7,6 @@ const binaryEncoding = 'binary';
 var unzip = require('unzip');
 const version = require('./version.js')
 const url = require('url')
-var spawn = child_process.spawn;
 colors.setTheme({silly: 'rainbow', input: 'grey', verbose: 'cyan', prompt: 'red', info: 'green', data: 'blue', help: 'cyan', warn: 'yellow', debug: 'magenta', error: 'red'});
 /*输出一个信息*/
 var base_distance = "./../../../";
@@ -445,9 +444,37 @@ exports.set_mariadb = function(app_base_path,base_path,default_mariadb_data,call
         });
     })(mariadb_path,mysql_data,0);
 }
-
+exports.get_local_disk = function get_local_disk(callback){
+    spawn([`wmic logicaldisk where "drivetype=3" get freespace,name`],function(result) {
+        result = result.replace(/\r/g, '')
+        result = result.replace(/\n\n/g, "\n")
+        result = result.replace(/\n$/g, "")
+        result = result.split("\n")
+        result = Array.prototype.slice.call(result)
+        if (result[0] && /Name.*/.test(result[0])) {
+            result.splice(0, 1)
+        }
+        var d = {};
+        result.forEach( (drive) => {
+            drive = drive.replace(/^\s*?|\s*$/g, "");
+            drive = drive.replace(/\s\s/g, " ");
+            drive = drive.replace(/\s\s/g, " ");
+            var a = drive.split(" ");
+            var b = a[0] ? a[0] : 0;
+                a = a[1] ? a[1] : "";
+            if(a ) {
+                a = a.replace(/[^a-zA-Z]/g, '');
+                b = parseInt(b);
+            }
+            if(b > 0){
+                d[a] = Math.floor((b/1024/1024/1024) * 100) / 100;
+            }
+        });
+        callback(d);
+    },true)
+}
 /*执行一组 spawn 命令*/
-exports.spawn = function (command,callback/*服务名,用于判断该服务是否已经被安装*/){
+function spawn(command,callback/*服务名,用于判断该服务是否已经被安装*/,debug){
     (function execCommand(i){
         var command_text = command[i];
         var command_exec = child_process.exec(command_text,{ encoding: binaryEncoding },function(err,standard_output,standard_error){
@@ -455,10 +482,10 @@ exports.spawn = function (command,callback/*服务名,用于判断该服务是�
             var success =  iconv.decode(new Buffer(standard_output, binaryEncoding), encoding);
             var fail =  iconv.decode(new Buffer(standard_error, binaryEncoding), encoding);
             var command_result = success || fail;
-            if(success){
+            if(success && debug){
                 console.log("success: =>".red + success.red);
             }
-            if(fail){
+            if(fail && debug){
                 console.log("fail: =>".yellow + fail.yellow + " 命令行 => ".red+command_text.red);
             }
             i++;
@@ -478,6 +505,7 @@ exports.spawn = function (command,callback/*服务名,用于判断该服务是�
         });
     })(0);
 }
+exports.spawn = spawn
 
 exports.save_command = function(command_text,command_name,base_path,path,icon_number,is_admin,callback){
     var path = base_path+'app/tools/'+path;

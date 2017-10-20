@@ -14,6 +14,7 @@
 	/* node.js ipcMain 通信模块*/
 	var ipcRenderer = require("electron").ipcRenderer;
 	</script>
+    <script src="assets/js/global.js" type="text/javascript"></script>
 </head>
 <body>
 <section class="menu-section">
@@ -73,58 +74,138 @@
                                 </div>
                                 <div class="form-group">
                                     <label class="control-label"  style="color: #3c763d;">默认端口</label>
-                                    <div class="input-group" style="margin-bottom: 15px;">
+                                    <hr style="margin: 0; border: none;width"100%; />
+                                    <div class="input-group" style="margin-bottom: 15px;width: 45%; float: left; margin: initial; margin-right: 10%;">
                                           <span class="form-group input-group-btn">
-                                            <button class="btn btn-default" type="button" style="width: 120px; text-align: center;color: #3c763d;">HTTP</button>
+                                            <button class="btn btn-default" type="button" style="width: 90px; text-align: center;color: #3c763d;">HTTP</button>
                                           </span>
                                         <input type="number" class="form-control" name="http_port" value="80"  style="color: #3c763d;">
                                     </div>
-                                    <div class="input-group">
+                                    <div class="input-group"  style="width: 45%; float: left; margin: initial; ">
                                               <span class="form-group input-group-btn">
-                                                <button class="btn btn-default" type="button" style="width: 120px; text-align: center;color: #3c763d;">MySql</button>
+                                                <button class="btn btn-default" type="button" style="width: 90px; text-align: center;color: #3c763d;">MySql</button>
                                               </span>
                                         <input type="number" class="form-control" name="mariadb_port" value="3306" style="color: #3c763d;">
                                     </div>
                                 </div>
                                 <div class="form-group">
+                                    <label class="control-label"  style="color: #3c763d;">Mysql 登陆设置</label>
+                                    <hr style="margin: 0; border: none;width"100%; />
+                                    <div class="input-group" style="margin-bottom: 15px;width: 45%; float: left; margin: initial; margin-right: 10%;">
+                                          <span class="form-group input-group-btn">
+                                            <button class="btn btn-default" type="button" style="width: 90px; text-align: center;color: #3c763d;">账号</button>
+                                          </span>
+                                        <input type="text" class="form-control" name="mariadb_user" value="root"  style="color: #3c763d;">
+                                    </div>
+                                    <div class="input-group"  style="width: 45%; float: left; margin: initial; ">
+                                              <span class="form-group input-group-btn">
+                                                <button onclick="reset_mariadb_passwrod();" class="btn btn-default" type="button" style="width: 90px; text-align: center;color: #3c763d;"><i class="fa fa-refresh" aria-hidden="true"></i> 密码</button>
+                                              </span>
+                                        <input type="text" class="form-control" name="mariadb_password" id="mariadb_password" value="" style="color: #3c763d;">
+                                    </div>
+                                </div>
+                                <div class="form-group">
                                     <label class="control-label"  style="color: #3c763d;">默认目录</label>
+                                    <div class="input-group"   style="margin-bottom: 15px;">
+                                    <div class="btn-group">
+                                        <button data-drive="" data-size="" id="default_drive_html" data-toggle="dropdown" class="btn btn-default dropdown-toggle"><span class="text-success">默认D盘</span> <span class="caret"></span></button>
+                                        <ul class="dropdown-menu" id="drive_html">
+                                        </ul>
+                                    </div>
+                                    </div>
                                     <div class="input-group" style="margin-bottom: 15px;">
                                           <span class="form-group input-group-btn">
                                             <button class="btn btn-default" type="button" style="width: 120px; text-align: center;color: #8a6d3b;">网站目录</button>
                                           </span>
-                                        <input type="text" class="form-control" name="www_root" value="" style="color: #8a6d3b;">
+                                        <input onkeyup="this.value=this.value.replace(/[^a-zA-Z0-9\/\\\-\_\:]/g,'');this.value=this.value.replace(/\\/g,'/');this.value=this.value.replace(/\/\//g,'/')" type="text" class="form-control" id="www_root" name="www_root" value="" style="color: #8a6d3b;">
                                     </div>
                                     <div class="input-group" style="margin-bottom: 15px;">
                                               <span class="form-group input-group-btn">
                                                 <button class="btn btn-default" type="button" style="width: 120px; text-align: center;color: #8a6d3b;">MariaDB</button>
                                               </span>
-                                        <input type="text" class="form-control" name="mysql_data" value="" style="color: #8a6d3b;">
+                                        <input onkeyup="this.value=this.value.replace(/[^a-zA-Z0-9\/\\\-\_\:]/g,'');this.value=this.value.replace(/\\/g,'/');this.value=this.value.replace(/\/\//g,'/')" type="text" class="form-control" id="mysql_data" name="mysql_data" value="" style="color: #8a6d3b;">
                                     </div>
                                     <div class="input-group">
                                               <span class="form-group input-group-btn">
                                                 <button class="btn btn-default" type="button" style="width: 120px; text-align: center;color: #8a6d3b;">MongoDB</button>
                                               </span>
-                                        <input type="text" class="form-control" name="mongodb_data" value="" style="color: #8a6d3b;">
+                                        <input onkeyup="this.value=this.value.replace(/[^a-zA-Z0-9\/\\\-\_\:]/g,'');this.value=this.value.replace(/\\/g,'/');this.value=this.value.replace(/\/\//g,'/')"  type="text" class="form-control" id="mongodb_data" name="mongodb_data" value="" style="color: #8a6d3b;">
                                     </div>
                                 </div>
-                                <script type="text/javascript">
-                                    $.ajax({
-                                        async: false,
-                                        url: "http://127.0.0.1:54222/show_letter",
-                                        type: "GET",
-                                        dataType: 'jsonp',
-                                        jsonp: 'jsoncallback',
-                                        data: {},
-                                        timeout: 20,
-                                        beforeSend: function () {
-                                            //jsonp 方式此方法不被触发.原因可能是dataType如果指定为jsonp的话,就已经不是ajax事件了
-                                        },
-                                        success: function (json) {//客户端jquery预先定义好的callback函数,成功获取跨域服务器上的json数据后,会动态执行这个callback函数)
-                                            console.log(json)
+
+                                <script>
+                                    MyAjax('get_drive',function(disk){
+                                        var drive_html="";
+                                        var primary_drive_size = 0
+                                        var primary_drive = null
+                                        for(var p in disk){
+                                            if(!primary_drive || disk[p]>primary_drive_size){
+                                                primary_drive_size = disk[p]
+                                                primary_drive = p
+                                            }
+                                            drive_html += `<li><a onclick="setDefaultDrive(this.dataset.drive,this.dataset.size)" href="javascript:;" data-size="${disk[p]}" data-drive="${p}">${p} 剩余空间(${disk[p]} GB)</a></li>`
                                         }
+                                        if("D" in disk || "d" in disk){
+                                            setDefaultDrive("D",disk["D"] ? disk["D"] : disk["d"]);
+                                        }else{
+                                            setDefaultDrive(primary_drive,disk[primary_drive]);
+                                        }
+                                        $("#drive_html").html(drive_html);
                                     })
+                                    function setDefaultDrive(DriveName,DriveSize){
+                                        var base_path = DriveName+":/www_working/";
+                                        $("#default_drive_html").attr({
+                                            "data-drive":DriveName,
+                                            "data-size":DriveSize
+                                        })
+                                        /*-------------------------------------*/
+                                        var old_v = $("#www_root").val()
+                                        var v = base_path+"wwwroot"
+                                        var reg = /^[a-zA-Z]{1}\:/;
+                                        if(old_v){
+                                            if(reg.test(old_v)){
+                                                v = old_v.replace(reg,DriveName+":")
+                                            }
+                                        }
+                                        $("#www_root").val(v)
+
+                                        /*-------------------------------------*/
+                                        old_v = $("#mysql_data").val()
+                                        v = base_path+"database/mysql_data"
+                                        if(old_v){
+                                            if(reg.test(old_v)){
+                                                v = old_v.replace(reg,DriveName+":")
+                                            }
+                                        }
+                                        $("#mysql_data").val(v)
+                                        /*-------------------------------------*/
+                                        old_v = $("#mongodb_data").val()
+                                        v = base_path+"database/mongo_data"
+                                        if(old_v){
+                                            if(reg.test(old_v)){
+                                                v = old_v.replace(reg,DriveName+":")
+                                            }
+                                        }
+                                        $("#mongodb_data").val(v)
+
+                                        $("#default_drive_html").children('span').eq(0).html(`默认${DriveName}盘 / 可用(${DriveSize} Gb)`)
+                                    }
+                                    function reset_mariadb_passwrod(){
+                                        $("#mariadb_password").val(makeid(6))
+                                    }
+
+                                    reset_mariadb_passwrod();
+                                    function makeid(n){
+                                        if(!n)n=6;
+                                        var text = "";
+                                        //var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+                                        var possible = "abcdefghijklmnopqrstuvwxyz0123456789";
+
+                                        for( var i=0; i < n; i++ )
+                                            text += possible.charAt(Math.floor(Math.random() * possible.length));
+                                        return text;
+                                    }
                                 </script>
-                                  
                                  
                                         <button type="submit" class="btn btn-info">开始安装 </button>
 
@@ -135,7 +216,7 @@
                  <div class="col-md-6 col-sm-6 col-xs-12">
                      <div class="panel panel-default">
                          <div class="panel-heading">
-                             集成的工具
+                             包含的软件
                          </div>
                          <div class="panel-body">
                              <form role="form" id="software_all">
@@ -147,70 +228,48 @@
     </div>
     </div>
 <script type="text/javascript">
-
-        $.ajax({
-            async:false,
-            url: "http://127.0.0.1:54222/get_versions",
-            type: "GET",
-            dataType: 'jsonp',
-            jsonp: 'jsoncallback',
-            data: {
-
-            },
-            timeout: 20,
-            beforeSend: function(){
-                //jsonp 方式此方法不被触发.原因可能是dataType如果指定为jsonp的话,就已经不是ajax事件了
-            },
-            success: function (json) {//客户端jquery预先定义好的callback函数,成功获取跨域服务器上的json数据后,会动态执行这个callback函数
-                var software_all = "";
-                for(var p in json){
-                    var j = json[p]
-                    switch (p){
-                        case "php":
-                            var phphtml = "";
-                            for(var p_php in j){
-                                phphtml+='<div class="checkbox">';
-                                phphtml+='<label>';
-                                phphtml+=` <input type="checkbox" checked="checked" class="php_verstion" value="${p_php}"> <i class="icon iconfont icon-php fa-1x btn-success"></i> ${p_php}</label>`;
-                                phphtml+='</div>';
-                            }
-                            $('#php_versions').html(phphtml)
-
-                            break;
-                        case "web_server":
-                            var server_html=""
-                            for(var server_p in j){
-                                server_html+='<div class="radio">';
-                                server_html+='<label>';
-                                server_html+=` <input type="radio" checked="checked" name="web_server" value="${server_p}"> <i class="${j[server_p].icon}"></i> ${server_p}</label>`;
-                                server_html+='</div>';
-                            }
-                            $('#web_server').after(server_html)
-                            break;
+    MyAjax('get_versions',function (json) {//客户端jquery预先定义好的callback函数,成功获取跨域服务器上的json数据后,会动态执行这个callback函数
+        var software_all = "";
+        for(var p in json){
+            var j = json[p]
+            switch (p){
+                case "php":
+                    var phphtml = "";
+                    for(var p_php in j){
+                        phphtml+='<div class="checkbox">';
+                        phphtml+='<label>';
+                        phphtml+=` <input type="checkbox" checked="checked" class="php_verstion" value="${p_php}"> <i class="icon iconfont icon-php fa-1x btn-success"></i> ${p_php}</label>`;
+                        phphtml+='</div>';
                     }
-                    software_all+=`<span class="text-muted">${p}</span><hr style="margin-top: 2px; margin-bottom: 2px; border: 0; border-top: 1px solid #eee;" />`;
-                    software_all+='<div style="margin-bottom: 8px;">';
-                    for(var p2 in j){
-                        var j2 = j[p2]
-                        software_all+= `<a href="javascript:;" class="btn btn-default btn-xs" style="margin-right:5px;"><i title="${p2}" alt="${p2}"  class="${j2.icon} text-danger"></i> ${p2}</a>`;
-                    }
-                    software_all+='</div>';
-                }
-                $('#software_all').html(software_all)
-            },
-            complete: function(XMLHttpRequest, textStatus){
+                    $('#php_versions').html(phphtml)
 
-            },
-            error: function(xhr){
-                //jsonp 方式此方法不被触发.原因可能是dataType如果指定为jsonp的话,就已经不是ajax事件了
-                //请求出错处理
+                    break;
+                case "web_server":
+                    var server_html="<div class=\"radio\">"
+                    for(var server_p in j){
+                        server_html+='<label style="margin-right: 20px;">';
+                        server_html+=` <input type="radio" checked="checked" name="web_server" value="${server_p}"> <i class="${j[server_p].icon}"></i> ${server_p}</label>`;
+                    }
+                    server_html+='</div>';
+                    $('#web_server').after(server_html)
+                    break;
             }
-        });
+            software_all+=`<span class="text-muted">${p}</span><hr style="margin-top: 2px; margin-bottom: 2px; border: 0; border-top: 1px solid #eee;" />`;
+            software_all+='<div style="margin-bottom: 8px;">';
+            for(var p2 in j){
+                var j2 = j[p2]
+                software_all+= `<a href="javascript:;" class="btn btn-default btn-xs" style="margin-right:5px;"><i title="${p2}" alt="${p2}"  class="${j2.icon} text-danger"></i> ${p2}</a>`;
+            }
+            software_all+='</div>';
+        }
+        $('#software_all').html(software_all)
+    });
     $(document).on("keydown",function(event){
         if(event.keyCode == 123){
             ipcRenderer.send('dev-tools-window');
         }
     })
 </script>
+<script src="assets/js/bootstrap.js"></script>
 </body>
 </html>

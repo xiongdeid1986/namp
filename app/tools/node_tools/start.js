@@ -66,12 +66,11 @@ web.get('/get_versions',function(req,res){
 })
 
 /*取得系统盘符*/
-web.get('/show_letter',function(req,res){
+web.get('/get_drive',function(req,res){
     var Q = url.parse(req.url,true)
-    function_global.spawn([`wmic LOGICALDISK get name,Description,filesystem,size,freespace`],function(result){
+    function_global.get_local_disk(function(disk){
         var r = ''
-        //
-        result = JSON.stringify(result)
+        result = JSON.stringify(disk)
         if('jsoncallback' in Q.query){
             r = `${Q.query.jsoncallback}(${result})`
         }else{
