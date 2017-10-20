@@ -1,14 +1,11 @@
 {
-
     "web_server":{
-	
         "apache":{
             "path":"/",
             "file_name":"apache",
             "icon":"icon iconfont icon-ApacheActiveMQ",
             "conf":["conf/httpd.conf","conf/extra/httpd-php-fcgid53.conf","conf/extra/httpd-php-fcgid54.conf","conf/extra/httpd-php-fcgid55.conf","conf/extra/httpd-php-fcgid56.conf","conf/extra/httpd-php-fcgid70.conf","conf/extra/httpd-php-fcgid71.conf","conf/extra/httpd-php-sapi52.conf","conf/extra/httpd-php-sapi53.conf","conf/extra/httpd-php-sapi54.conf","conf/extra/httpd-php-sapi55.conf","conf/extra/httpd-php-sapi71.conf","conf/extra/httpd-vhosts.conf","logs/error.log","logs/install.log"]
         },
-		
         "nginx":{
             "path":"/",
             "file_name":"nginx",
@@ -16,7 +13,6 @@
             "conf":["conf/nginx.conf","conf/php52.conf","conf/php53.conf","conf/php54.conf","conf/php55.conf","conf/php56.conf","conf/php70.conf","conf/php71.conf","conf/vhost/default.conf","conf/vhost/localhost.conf","logs/access.log","logs/error.log"]
         }
     },
-	
     "php":{
         "php-5.2.17":{
             "path":"/php/",
@@ -103,9 +99,7 @@
             "conf":["php.ini"]
         }
     },
-
     "database":{
-	
         "mariadb":{
             "path":"/",
             "file_name":"mariadb",
@@ -117,7 +111,6 @@
                 "conf":[]
             }
         },
-		
         "mongodb":{
             "path":"/",
             "file_name":"mongodb",
@@ -129,7 +122,6 @@
                 "conf":[]
             }
         },
-		
         "redis":{
             "redis":{
                 "path":"/",
@@ -139,7 +131,6 @@
             }
         }
     },
-	
     "nodejs":{
         "nodejs":{
             "path":"/",
@@ -148,7 +139,6 @@
             "conf":[]
         }
     },
-	
     "tools":{
         "HeidiSQL":{
             "path":"/",
@@ -157,5 +147,4 @@
             "conf":[]
         }
     }
-
 }
