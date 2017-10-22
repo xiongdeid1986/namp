@@ -1,0 +1,27 @@
+1+1
+2+2
+5+5
+_+5
+console.log(_)
+_+100
+let n = 5;
+console.log(n)
+n
+let name = "hellow wrod!"
+name
+console.log(name)
+age = 20;
+console.log(global)
+var p = {name :"ddweb",age:100}
+p.f = function(){return 123;}
+p.f
+p.f()
+[1,2,3]
+_.length
+_.toString()
+parseInt(_)
+for(var i=0;i<100;i++){
+break
+name
+for(var i=0;i<1000;i++){
+name = "Hellow Word!"
