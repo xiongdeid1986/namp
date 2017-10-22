@@ -1,1 +1,2 @@
-/app/tools/node_tools/.idea/
+/app/tools/node_tools/.idea/*
+/app/tools/node_tools/index/assets/js/.git/*
