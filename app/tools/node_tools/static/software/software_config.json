@@ -168,7 +168,7 @@
         "vim":{
             "path":"/",
             "icon":"fa fa-file-text",
-            "file_name":"vim80",
+            "file_name":"Vim",
 			"description":"vim中文编辑器",
             "conf":[]
         }
