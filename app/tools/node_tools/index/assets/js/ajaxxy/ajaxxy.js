@@ -4,6 +4,7 @@
 	name : ajaxxy
 	ajaxxy.t(调用翻译事件)
 	ajaxxy.submit(自动提交事件)
+	GitHub.com
 */
 
 (function(){
