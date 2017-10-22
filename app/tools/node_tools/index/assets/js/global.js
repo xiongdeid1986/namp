@@ -34,6 +34,9 @@ function MyAjax(active,data,fn,method,url){
 			if(fn){
 				fn(json);
 			}
+		},
+		error:function(e){
+			
 		}
 	});
 }

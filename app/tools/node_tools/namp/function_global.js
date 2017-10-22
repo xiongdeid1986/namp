@@ -1,11 +1,11 @@
-var colors = require('colors');
-var fs = require('fs');
-var child_process = require('child_process');
-var iconv = require('iconv-lite');
+const colors = require('colors');
+const fs = require('fs');
+const child_process = require('child_process');
+const path = require('path')
+const iconv = require('iconv-lite');
 const encoding = 'cp936';
 const binaryEncoding = 'binary';
-var unzip = require('unzip');
-const version = require('./version.js')
+const unzip = require('unzip');
 const url = require('url')
 colors.setTheme({silly: 'rainbow', input: 'grey', verbose: 'cyan', prompt: 'red', info: 'green', data: 'blue', help: 'cyan', warn: 'yellow', debug: 'magenta', error: 'red'});
 /*输出一个信息*/
@@ -16,11 +16,7 @@ exports.echo_info = function(text,n){
     case 3:console.log(text.grey);break;case 4:console.log(text.cyan);break;case 5:console.log(text.blue);break;case 6:console.log(text.cyan);break;
     case 7:console.log(text.yellow);break;case 8:console.log(text.magenta);break;default:console.log(text);break;}
 }
-exports.returnAjax = function(req,res,callback){
-    var q = url.parse(req.url)
-    console.log(q)
-    callback(q)
-}
+
 exports.is_install = function(namp_config,callback){
     fs.readFile(namp_config,function(e,config){
         if(e){
@@ -40,6 +36,79 @@ exports.is_install = function(namp_config,callback){
         }
     })
 }
+/*递归创建一个路径*/
+function mkdirs(dirname, callback) {
+    fs.exists(dirname, function (exists) {
+        if (exists) {
+            if( callback ){
+                callback();
+            }
+        } else {
+            mkdirs(path.dirname(dirname), function () {
+                fs.mkdir(dirname, callback);
+            });
+        }
+    });
+}
+exports.mkdirs = mkdirs;
+/*创建一组路径*/
+exports.all_mkdir = function(complete,callback){
+    (function complete_mk(i){
+        var p = complete[i];
+        mkdirs(p,function(){
+            i++;
+            if(i<complete.length){
+                complete_mk(i);
+            }else{
+                callback();
+            }
+        });
+    })(0);
+}
+exports.create_config = function create_config(init,callback){
+    var mongodb_data = init.mongodb_data
+    var mysql_data = init.mysql_data
+    var www_root = init.www_root
+    var mariadb_password = init.mariadb_password
+    var mariadb_user = init.mariadb_user
+    var mariadb_port = init.mariadb_port
+    var http_port = init.http_port
+    var web_server = init.web_server
+}
+/*检查路径*/
+exports.check_path_all = function check_path_all(pashJson,callback){
+/*格式  [{name":"mongodb_data","path":init.mongodb_data.replace(/\:.+/,'')]*/
+    var r = {};
+    var n = 0;
+    var is_ok = true;
+    (function _check_path_all(i){
+        var p = pashJson[i];
+        fs.exists(p.path,function(exist){
+            if (!exist){
+                r[p.name] = {
+                    "info":false,
+                    "status":"danger"
+                }
+                is_ok = false;
+                n++;
+            }else{
+                r[p.name] = {
+                    "info":true,
+                    "status":"success"
+                }
+                n++;
+            }
+            if(n == pashJson.length){
+                callback(is_ok,r);
+            }
+            i++;
+            if(i<pashJson.length){
+                _check_path_all(i);
+            }
+        })
+    })(0);
+}
+
 
 /*将数字转成中文*/
 function SectionToChinese(section){
@@ -444,7 +513,7 @@ exports.set_mariadb = function(app_base_path,base_path,default_mariadb_data,call
         });
     })(mariadb_path,mysql_data,0);
 }
-exports.get_local_disk = function get_local_disk(callback){
+exports.get_drive = function get_drive(callback){
     spawn([`wmic logicaldisk where "drivetype=3" get freespace,name`],function(result) {
         result = result.replace(/\r/g, '')
         result = result.replace(/\n\n/g, "\n")
@@ -471,7 +540,7 @@ exports.get_local_disk = function get_local_disk(callback){
             }
         });
         callback(d);
-    },true)
+    })
 }
 /*执行一组 spawn 命令*/
 function spawn(command,callback/*服务名,用于判断该服务是否已经被安装*/,debug){
