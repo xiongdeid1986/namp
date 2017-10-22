@@ -1,0 +1,353 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <title>安装程序</title>
+    <link href="assets/css/bootstrap.css" rel="stylesheet" />
+    <link href="assets/css/font-awesome.css" rel="stylesheet" />
+    <link href="assets/css/style.css" rel="stylesheet" />
+    <script src="assets/js/jquery-1.10.2.js" type="text/javascript"></script>
+	<script>if (typeof module === 'object') {window.jQuery = window.$ = module.exports;};</script>	<script>
+	/* node.js ipcMain 通信模块*/
+	var ipcRenderer = require("electron").ipcRenderer;
+	</script>
+    <script src="assets/js/global.js" type="text/javascript"></script>
+    <script src="assets/js/ajaxxy/ajaxxy.js" type="text/javascript"></script>
+    <script src="http://127.0.0.1:54222/socket.io/socket.io.js" type="text/javascript"></script>
+
+
+</head>
+<body>
+<section class="menu-section">
+<div class="row">
+	<div class="col-md-12">
+	<h4>欢迎使用,请先安装初始化....
+	<a href="#" class="btn btn-danger btn-xs pull-right closed" style="margin-left:10px;"><i class="fa fa-times"></i> 关闭 </a>
+	<a href="#" class="btn btn-default btn-xs pull-right max" style="margin-left:10px;"><i class="fa fa-window-maximize"></i>  </a>
+	<a href="#" class="btn btn-default btn-xs pull-right min" style="margin-left:10px;"><i class="fa fa-window-minimize"></i>  </a>
+	</h4>
+	</div>
+
+</div>
+</section>
+
+	<script type="text/javascript">
+	/*与node.js的放大,缩小功能模块*/
+	$(document).delegate(".closed","click",function(){
+		ipcRenderer.send("closed");
+	})
+	
+	var isBig=true;//窗口放大还原标示
+
+  //关闭窗口
+    $(document).on("click",".closed",function(){
+        ipcRenderer.send('window-all-closed');
+    });
+    //最大化
+    $(document).on("click",".max",function () {
+        if(isBig){
+            $(this).children("i").attr('class','fa fa-window-restore');
+            ipcRenderer.send('show-window');
+        }else{
+            $(this).children("i").attr('class','fa fa-window-maximize');
+            ipcRenderer.send('orignal-window');
+        }
+        isBig=!isBig;
+    });
+    //最小化
+    $(document).on("click",".min",function () {
+        ipcRenderer.send('hide-window');
+    });
+	</script>
+     <!-- MENU SECTION END-->
+    <div class="content-wrapper">
+         <div class="container">
+             <div class="row">
+            <div class="col-md-6 col-sm-6 col-xs-12">
+               <div class="panel panel-info" id="install_initialize">
+                        <div class="panel-heading">
+                           基本信息
+                        </div>
+                        <div class="panel-body">
+                            <script type="text/javascript">
+                                ajaxxy.set({
+                                    confirm:false,
+                                    prefixback:function(){
+                                        ajaxxy.info("正在检测系统.....","success",null,$("#install_form"),true);
+                                    },
+                                    confirmText:"是否开始安装",
+                                    jsonp:true,/*跨域*/
+                                    alertLocation:"after",
+                                    ajaxErrorCallback:function(e){
+                                        ajaxxy.info("底层未启动","danger",null,$("#install_form"),true);
+                                    },
+                                    callback:function callback(json){
+                                        /*提交安装回调函数*/
+                                        var socket = io.connect("http://localhost:54222");
+                                        var record = {};
+                                        var install_request = "";
+                                        /*安装目录 脚本*/
+                                        function install(status,install_step){
+                                            if(install_step == 0){
+                                                ajaxxy.info("安装成功! ","success",null,$("#install_form"));
+                                                return;
+                                            }
+                                            if("install_step"+install_step in record || record["install_step"+install_step]){/*避免重复提交*/
+                                                return;
+                                            }
+                                            console.log('install_step check3 => install_step'+install_step)
+                                            switch (install_step){
+                                                case 1:
+                                                    install_request = "check_path";
+                                                    ajaxxy.info("正在检查路径正确性!","success",null,$("#install_form"));/*下一步动作*/
+                                                break;
+                                                case 2:
+                                                    install_request = "mkdir";
+                                                    ajaxxy.info("正在创建路径!","success",null,$("#install_form"));/*下一步动作*/
+                                                break;
+                                                case 3:
+                                                    install_request = "unzip";
+                                                    ajaxxy.info("正在解压软件!","success",null,$("#install_form"));/*下一步动作*/
+                                                    break;
+                                            }
+                                            record["install_step"+install_step] = true;
+                                            var o = {
+                                                "install_step":install_step,
+                                                "request":install_request
+                                            };
+                                            socket.emit("install",o);
+                                        }
+                                        /*调用脚 本*/
+                                        socket.on("install",function(data){
+                                            var status = data.status;
+                                            var install_step = parseInt(data.install_step);
+                                            if(data.status == true){
+                                                install(status,install_step);
+                                            }else{
+                                                ajaxxy.info("安装系统失败! 代码 ("+install_step+")","danger",null,$("#install_form"));
+                                            }
+                                        });
+                                        /*执行脚本*/
+                                        install(true,1);
+                                    }
+                                },"help")
+                            </script>
+                            <form id="install_form" role="form" action="http://localhost:54222/primary_install" method="get">
+                                <div class="form-group has-success">
+                                    <label class="control-label"  id="web_server" style="color: #3c763d;">选择网页服务器</label>
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label"  style="color: #3c763d;">默认端口</label>
+                                    <hr style="margin: 0; border: none;width"100%; />
+                                    <div class="input-group" style="margin-bottom: 15px;width: 45%; float: left; margin: initial; margin-right: 10%;">
+                                          <span class="form-group input-group-btn">
+                                            <button data-reset="reset_http_prot" class="btn btn-default reset_this_v" type="button" style="width: 90px; text-align: center;color: #3c763d;"><i class="fa fa-connectdevelop" aria-hidden="true"></i> HTTP</button>
+                                          </span>
+                                        <input  onkeyup="if(parseInt(this.value) != parseInt(this.value) || parseInt(this.value) > 65534 || parseInt(this.value) < 1){this.value=80;}" type="number" class="form-control" name="http_port" id="http_port" value=""  style="color: #3c763d;">
+                                    </div>
+                                    <div class="input-group"  style="width: 45%; float: left; margin: initial; ">
+                                              <span class="form-group input-group-btn">
+                                                <button data-reset="reset_mariadb_port" class="btn btn-default reset_this_v" type="button" style="width: 90px; text-align: center;color: #3c763d;"><i class="fa fa-medium" aria-hidden="true"></i> MySql</button>
+                                              </span>
+                                        <input  onkeyup="if(parseInt(this.value) != parseInt(this.value) || parseInt(this.value) > 65534 || parseInt(this.value) < 1){this.value=3306;}" type="number" class="form-control" name="mariadb_port" id="mariadb_port" value="" style="color: #3c763d;">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label"  style="color: #3c763d;">Mysql 登陆设置</label>
+                                    <hr style="margin: 0; border: none;width"100%; />
+                                    <div class="input-group" style="margin-bottom: 15px;width: 45%; float: left; margin: initial; margin-right: 10%;">
+                                          <span class="form-group input-group-btn">
+                                            <button data-reset="reset_mariadb_root" class="btn btn-default reset_this_v" type="button" style="width: 90px; text-align: center;color: #3c763d;"><i class="fa fa-venus-double" aria-hidden="true"></i> 账号</button>
+                                          </span>
+                                        <input type="text" class="form-control" name="mariadb_user" id="mariadb_user" value=""  style="color: #3c763d;">
+                                    </div>
+                                    <div class="input-group"  style="width: 45%; float: left; margin: initial; ">
+                                              <span class="form-group input-group-btn">
+                                                <button data-reset="reset_mariadb_passwrod" class="btn btn-default reset_this_v" type="button" style="width: 90px; text-align: center;color: #3c763d;"><i class="fa fa-unlock-alt" aria-hidden="true"></i> 密码</button>
+                                              </span>
+                                        <input type="text" class="form-control" name="mariadb_password" id="mariadb_password" value="" style="color: #3c763d;">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label"  style="color: #3c763d;">默认目录</label>
+                                    <div class="input-group"   style="margin-bottom: 15px;">
+                                    <div class="btn-group">
+                                        <button data-drive="" data-size="" id="default_drive_html" data-toggle="dropdown" class="btn btn-default dropdown-toggle"><span class="text-success">默认D盘</span> <span class="caret"></span></button>
+                                        <ul class="dropdown-menu" id="drive_html">
+                                        </ul>
+                                    </div>
+                                    </div>
+                                    <div class="input-group" style="margin-bottom: 15px;">
+                                          <span class="form-group input-group-btn">
+                                            <button class="btn btn-default" type="button" style="width: 120px; text-align: center;color: #8a6d3b;">网站目录</button>
+                                          </span>
+                                        <input onkeyup="this.value=this.value.replace(/[^a-zA-Z0-9\/\\\-\_\:]/g,'');this.value=this.value.replace(/\\/g,'/');this.value=this.value.replace(/\/\//g,'/')" type="text" class="form-control" id="www_root" name="www_root" value="" style="color: #8a6d3b;">
+                                    </div>
+                                    <div class="input-group" style="margin-bottom: 15px;">
+                                              <span class="form-group input-group-btn">
+                                                <button class="btn btn-default" type="button" style="width: 120px; text-align: center;color: #8a6d3b;">MariaDB</button>
+                                              </span>
+                                        <input onkeyup="this.value=this.value.replace(/[^a-zA-Z0-9\/\\\-\_\:]/g,'');this.value=this.value.replace(/\\/g,'/');this.value=this.value.replace(/\/\//g,'/')" type="text" class="form-control" id="mysql_data" name="mysql_data" value="" style="color: #8a6d3b;">
+                                    </div>
+                                    <div class="input-group">
+                                              <span class="form-group input-group-btn">
+                                                <button class="btn btn-default" type="button" style="width: 120px; text-align: center;color: #8a6d3b;">MongoDB</button>
+                                              </span>
+                                        <input onkeyup="this.value=this.value.replace(/[^a-zA-Z0-9\/\\\-\_\:]/g,'');this.value=this.value.replace(/\\/g,'/');this.value=this.value.replace(/\/\//g,'/')"  type="text" class="form-control" id="mongodb_data" name="mongodb_data" value="" style="color: #8a6d3b;">
+                                    </div>
+                                </div>
+                                <script type="text/javascript">
+                                    MyAjax('get_drive',function(disk){
+                                        var drive_html="";
+                                        var primary_drive_size = 0
+                                        var primary_drive = null
+                                        for(var p in disk){
+                                            if(!primary_drive || disk[p]>primary_drive_size){
+                                                primary_drive_size = disk[p]
+                                                primary_drive = p
+                                            }
+                                            drive_html += `<li><a onclick="setDefaultDrive(this.dataset.drive,this.dataset.size)" href="javascript:;" data-size="${disk[p]}" data-drive="${p}">${p} 剩余空间(${disk[p]} GB)</a></li>`
+                                        }
+                                        if("D" in disk || "d" in disk){
+                                            setDefaultDrive("D",disk["D"] ? disk["D"] : disk["d"]);
+                                        }else{
+                                            setDefaultDrive(primary_drive,disk[primary_drive]);
+                                        }
+                                        $("#drive_html").html(drive_html);
+                                    })
+                                    function setDefaultDrive(DriveName,DriveSize){
+                                        var base_path = DriveName+":/www_working/";
+                                        $("#default_drive_html").attr({
+                                            "data-drive":DriveName,
+                                            "data-size":DriveSize
+                                        })
+                                        /*-------------------------------------*/
+                                        var old_v = $("#www_root").val()
+                                        var v = base_path+"wwwroot"
+                                        var reg = /^[a-zA-Z]{1}\:/;
+                                        if(old_v){
+                                            if(reg.test(old_v)){
+                                                v = old_v.replace(reg,DriveName+":")
+                                            }
+                                        }
+                                        $("#www_root").val(v)
+
+                                        /*-------------------------------------*/
+                                        old_v = $("#mysql_data").val()
+                                        v = base_path+"database/mysql_data"
+                                        if(old_v){
+                                            if(reg.test(old_v)){
+                                                v = old_v.replace(reg,DriveName+":")
+                                            }
+                                        }
+                                        $("#mysql_data").val(v)
+                                        /*-------------------------------------*/
+                                        old_v = $("#mongodb_data").val()
+                                        v = base_path+"database/mongo_data"
+                                        if(old_v){
+                                            if(reg.test(old_v)){
+                                                v = old_v.replace(reg,DriveName+":")
+                                            }
+                                        }
+                                        $("#mongodb_data").val(v)
+
+                                        $("#default_drive_html").children('span').eq(0).html(`默认${DriveName}盘 / 可用(${DriveSize} Gb)`)
+                                    }
+
+                                    function reset_mariadb_root(){ /*重置MariaDB的 端口*/
+                                        $("#mariadb_user").val("root");
+                                    }
+                                    function reset_mariadb_passwrod(){ /*重置MariaDB的 密码*/
+                                        $("#mariadb_password").val(makeid(6))
+                                    }
+                                    function reset_http_prot(){ /*重置HTTP的端口*/
+                                        $("#http_port").val(80);
+                                    }
+                                    function reset_mariadb_port(){ /*MySql 端口*/
+                                        $("#mariadb_port").val(3306);
+                                    }
+                                    $(".reset_this_v").on("click",function(){
+                                        var resetFn = $(this).attr("data-reset")
+                                        window[resetFn]();
+                                    }).trigger("click");
+                                    function makeid(n){
+                                        if(!n)n=6;
+                                        var text = "";
+                                        //var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+                                        var possible = "abcdefghijklmnopqrstuvwxyz0123456789";
+
+                                        for( var i=0; i < n; i++ )
+                                            text += possible.charAt(Math.floor(Math.random() * possible.length));
+                                        return text;
+                                    }
+                                </script>
+                                 
+                                        <button type="submit" class="btn btn-info">开始安装 </button>
+
+                                    </form>
+                            </div>
+                        </div>
+                            </div>
+                 <div class="col-md-6 col-sm-6 col-xs-12">
+                     <div class="panel panel-default">
+                         <div class="panel-heading">
+                             包含的软件
+                         </div>
+                         <div class="panel-body">
+                             <form role="form" id="software_all">
+                             </form>
+                         </div>
+                     </div>
+                 </div>
+        </div>
+    </div>
+    </div>
+<script type="text/javascript">
+    MyAjax('get_versions',function (json) {//客户端jquery预先定义好的callback函数,成功获取跨域服务器上的json数据后,会动态执行这个callback函数
+        var software_all = "";
+        for(var p in json){
+            var j = json[p]
+            switch (p){
+                case "php":
+                    var phphtml = "";
+                    for(var p_php in j){
+                        phphtml+='<div class="checkbox">';
+                        phphtml+='<label>';
+                        phphtml+=` <input type="checkbox" checked="checked" class="php_verstion" value="${p_php}"> <i class="icon iconfont icon-php fa-1x btn-success"></i> ${p_php}</label>`;
+                        phphtml+='</div>';
+                    }
+                    $('#php_versions').html(phphtml)
+
+                    break;
+                case "web_server":
+                    var server_html="<div class=\"radio\">"
+                    for(var server_p in j){
+                        server_html+='<label style="margin-right: 20px;">';
+                        server_html+=` <input type="radio" checked="checked" name="web_server" value="${server_p}"> <i class="${j[server_p].icon}"></i> ${server_p}</label>`;
+                    }
+                    server_html+='</div>';
+                    $('#web_server').after(server_html)
+                    break;
+            }
+            software_all+=`<span class="text-muted">${p}</span><hr style="margin-top: 2px; margin-bottom: 2px; border: 0; border-top: 1px solid #eee;" />`;
+            software_all+='<div style="margin-bottom: 8px;">';
+            for(var p2 in j){
+                var j2 = j[p2]
+                software_all+= `<a href="javascript:;" class="btn btn-default btn-xs" style="margin-right:5px;"><i title="${p2}" alt="${p2}"  class="${j2.icon} text-danger"></i> ${p2}</a>`;
+            }
+            software_all+='</div>';
+        }
+        $('#software_all').html(software_all)
+    });
+    $(document).on("keydown",function(event){
+        if(event.keyCode == 123){
+            ipcRenderer.send('dev-tools-window');
+        }
+    })
+</script>
+<script src="assets/js/bootstrap.js"></script>
+</body>
+</html>
