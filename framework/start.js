@@ -51,10 +51,8 @@ function start(){
         }
         mainWindow = new BrowserWindow(windowOptions)
         mainWindow.loadURL(path.join('file://', __dirname, open_path))//主窗口
-
     })
 }
-
 /*取得软件版本信息*/
 web.get('/get_versions',function(req,res){
     var Q = url.parse(req.url,true)
@@ -121,7 +119,6 @@ function install_socket(){
                             })
                         });
                         break;
-
                 }
             }
         });
