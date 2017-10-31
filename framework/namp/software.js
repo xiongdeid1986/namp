@@ -2,7 +2,7 @@ const fs = require('fs')
 const unzip = require('unzip');
 const path = require('path');
 const software_save_base_path = path.resolve(__dirname,"..")+"/static/software/".replace(/\\/,"/")//软件存放的基本路径
-const software_unzip_base_path = path.resolve(__dirname,"../../../../")+"/app".replace(/\\/,"/")//解压的基本路径
+const software_unzip_base_path = path.resolve(__dirname,"..")+"/app".replace(/\\/,"/")//解压的基本路径
 
 /*取得软件总类别*/
 function getAllType(all_soft,callback){
@@ -28,7 +28,6 @@ exports._unzip = function(all_soft,callback,debug){/*需要解压的所有 软�
     return
     (function unzip_software(i){
         /*如果文件不存在,先创建文件.*/
-
         fs.exists(unzip_path,function(exists){
             if(!exists){
                 fs.mkdir(unzip_path,function(e){
@@ -59,7 +58,7 @@ exports._unzip = function(all_soft,callback,debug){/*需要解压的所有 软�
                             console.log(unzip_name.rainbow+" ●-●>--> 全部解压完毕 (((m -_-)m ".info);
                             callback(zip_version);
                         }
-                        //解压完成处理
+                        /*解压完成处理*/
                     });
                     var zip_path = './../core_software/'+zip_name;
                     fs.exists(zip_path,function(exists){

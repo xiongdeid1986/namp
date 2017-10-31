@@ -24,7 +24,7 @@
 <section class="menu-section">
 <div class="row">
 	<div class="col-md-12">
-	<h4>欢迎使用,请先安装初始化....
+	<h4>欢迎使用,请先安装初始化.... 动点世纪(Talent旗下)
 	<a href="#" class="btn btn-danger btn-xs pull-right closed" style="margin-left:10px;"><i class="fa fa-times"></i> 关闭 </a>
 	<a href="#" class="btn btn-default btn-xs pull-right max" style="margin-left:10px;"><i class="fa fa-window-maximize"></i>  </a>
 	<a href="#" class="btn btn-default btn-xs pull-right min" style="margin-left:10px;"><i class="fa fa-window-minimize"></i>  </a>
@@ -33,14 +33,12 @@
 </div>
 </section>
 	<script type="text/javascript">
-	/*与node.js的放大,缩小功能模块*/
+    /*与node.js的放大,缩小功能模块*/
 	$(document).delegate(".closed","click",function(){
 		ipcRenderer.send("closed");
-	})
-	
-	var isBig=true;//窗口放大还原标示
-
-  //关闭窗口
+	});
+	var isBig = true;
+	/*窗口放大还原标示 , 关闭窗口*/
     $(document).on("click",".closed",function(){
         ipcRenderer.send('window-all-closed');
     });
@@ -128,14 +126,13 @@
                                                 ajaxxy.info("安装系统失败! 代码 ("+install_step+")","danger",null,$("#install_form"));
                                             }
                                         });
-                                        /*执行脚本*/
-                                        install(true,1);
+                                        install(true,1);/*执行脚本*/
                                     }
                                 },"help")
                             </script>
                             <form id="install_form" role="form" action="http://localhost:54222/primary_install" method="get">
                                 <div class="form-group has-success">
-                                    <label class="control-label"  id="web_server" style="color: #3c763d;">选择网页服务器</label>
+                                    <label class="control-label "  id="web_server" >选择网页服务器</label>
                                 </div>
                                 <div class="form-group">
                                     <label class="control-label"  style="color: #3c763d;">默认端口</label>
@@ -307,7 +304,7 @@
     MyAjax('get_versions',function (json) {//客户端jquery预先定义好的callback函数,成功获取跨域服务器上的json数据后,会动态执行这个callback函数
         var software_all = "";
         for(var p in json){
-            var j = json[p]
+            var j = json[p].softs;
             switch (p){
                 case "php":
                     var phphtml = "";
@@ -321,20 +318,28 @@
 
                     break;
                 case "web_server":
-                    var server_html="<div class=\"radio\">"
+                    var server_html="<div class=\"radio\">";
+                    var web_server_class = '';
                     for(var server_p in j){
+                        if(server_p == "apache"){
+                            web_server_class = "text-danger";
+                        }
+                        if(server_p == "nginx"){
+                            web_server_class = "text-primary";
+                        }
                         server_html+='<label style="margin-right: 20px;">';
-                        server_html+=` <input type="radio" checked="checked" name="web_server" value="${server_p}"> <i class="${j[server_p].icon}"></i> ${server_p}</label>`;
+                        server_html+=` <input type="radio" checked="checked" name="web_server" value="${server_p}"> <i class="${j[server_p].icon} ${web_server_class}"></i> <span class="${web_server_class}">${server_p}</span></label>`;
+                        web_server_class = '';
                     }
                     server_html+='</div>';
                     $('#web_server').after(server_html)
                     break;
             }
-            software_all+=`<span class="text-muted">${p}</span><hr style="margin-top: 2px; margin-bottom: 2px; border: 0; border-top: 1px solid #eee;" />`;
+            software_all+=`<span class="text-muted">${json[p].description}</span><hr style="margin-top: 2px; margin-bottom: 2px; border: 0; border-top: 1px solid #eee;" />`;
             software_all+='<div style="margin-bottom: 8px;">';
             for(var p2 in j){
                 var j2 = j[p2]
-                software_all+= `<a href="javascript:;" class="btn btn-default btn-xs" style="margin-right:5px;"><i title="${p2}" alt="${p2}"  class="${j2.icon} text-danger"></i> ${p2}</a>`;
+                software_all+= `<a href="javascript:;" class="btn btn-default btn-xs" title="${j2.description}" style="margin-right:5px;"><i title="${j2.description}" alt="${p2}"  class="${j2.icon} text-info"></i> ${p2}</a>`;
             }
             software_all+='</div>';
         }

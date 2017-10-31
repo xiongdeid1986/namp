@@ -1,16 +1,15 @@
-/*版本信息*/
-var version = require("./../namp/software_config")
-
-exports.get = function (name,callback){
-    if(typeof name == 'function'){
+/*软件版本信息配置文件*/
+const base_dir = require("path").resolve(__dirname,"..");
+const version = require(`${base_dir}/static/software/software_config`);
+exports.get = function ( name, callback ){
+    var j;
+    if(typeof name == 'function' || name instanceof  Function){
         callback = name;
-        var j = version;
+        j = version;
     }else{
-        var j = version[name]
+        j = version[name]
     }
     if(callback){
         callback(j)
-    }else{
-
     }
-}
+};

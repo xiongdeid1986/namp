@@ -6,10 +6,11 @@ const iconv = require('iconv-lite');
 const encoding = 'cp936';
 const binaryEncoding = 'binary';
 const unzip = require('unzip');
-const url = require('url')
+const url = require('url');
+const base_distance = "./../";/*输出一个信息*/
+const base_template = "./template/";/*配置项 template 路径 */
+/*设置颜色*/
 colors.setTheme({silly: 'rainbow', input: 'grey', verbose: 'cyan', prompt: 'red', info: 'green', data: 'blue', help: 'cyan', warn: 'yellow', debug: 'magenta', error: 'red'});
-/*输出一个信息*/
-var base_distance = "./../../../";
 exports.echo_info = function(text,n){
     if(!n) {n = 9999;}
     switch (n){case 0:console.log(text.info);break;case 1:console.log(text.red);break;case 2:console.log(text.rainbow);break;
@@ -217,8 +218,7 @@ exports.check_path = function(path,callback){
 /*设置apacheconf文件*/
 exports.set_apache_conf = function(app_base_path,www_root,base_path,callback){
     var apache_base  = app_base_path+'apache/';
-    var template_path = "./template/";
-    var apache_conf_path = template_path+'apache/conf/';
+    var apache_conf_path = base_template+'apache/conf/';
     var conf_path = apache_base+'conf/';
     var apache_confs = ["httpd.conf",
     "extra/httpd-vhosts.conf",
@@ -268,13 +268,12 @@ exports.set_apache_conf = function(app_base_path,www_root,base_path,callback){
 /*设置PHP*/
 exports.set_php_ini = function(app_base_path,callback){
     /*设置php.ini*/
-    var template_path = "./template/";
-    var template_file_path = template_path+"php/";
+    var template_file_path = base_template+"php/";
     fs.readdir(template_file_path,function(e,folder){
         if(!e){
             (function read_write(i){
                 var file_name = folder[i];
-                var read_path = template_path+'php/'+file_name+'/php.ini';
+                var read_path = base_template+'php/'+file_name+'/php.ini';
                 var save_path = app_base_path+'php/'+file_name+'/php.ini';
                 fs.readFile(read_path,'utf8',function(e,data){
                     if(!e){
@@ -316,8 +315,7 @@ exports.set_nginx_conf = function(app_base_path,www_root,callback){
                 if(i<folders.length){
                     delete_nginx_vhost(i);
                 }else{
-                    var template_path = "./template/";
-                    var template_file_path = template_path+"nginx/";
+                    var template_file_path = base_template+"nginx/";
                     var folder = ["conf/nginx.conf",
                         "conf/vhost/default.conf",
                         "conf/vhost/localhost.conf"];
@@ -425,8 +423,7 @@ exports.unzip_set_software = function(unzip_name,unzip_path,zip_version,app_base
 exports.set_mariadb = function(app_base_path,base_path,default_mariadb_data,callback){
     var mariadb_path = app_base_path+'mariadb/data/';
     console.log("●-●配置并安装 MariaDB (原MySQL) ●-●".info);
-    var template_path = "./template/";
-    var mariadb_template_path = template_path+'mariadb/my.ini';
+    var mariadb_template_path = base_template+'mariadb/my.ini';
     fs.readFile(mariadb_template_path,'utf8',function(e,data){
         if(e){
             console.log(e);
@@ -480,8 +477,7 @@ exports.set_mariadb = function(app_base_path,base_path,default_mariadb_data,call
                                         //}
                                         if(i == len && n == 2){
                                             console.log("●-●配置并安装 MariaDB (原MySQL) ●-●".info);
-                                            var template_path = "./template/";
-                                            var mariadb_template_path = template_path+'mariadb/my.ini';
+                                            var mariadb_template_path = base_template+'mariadb/my.ini';
                                             fs.readFile(mariadb_template_path,'utf8',function(e,data){
                                                 if(e){
                                                     console.log(e);

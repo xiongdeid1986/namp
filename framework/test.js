@@ -1,4 +1,4 @@
-var function_global = require("./function.global/function.global.js")
+var function_global = require("./namp/function_global.js")
 
 function_global.server_is_run("FileZilla Server",function(is){
     console.log(is);

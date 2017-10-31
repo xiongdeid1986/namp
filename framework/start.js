@@ -4,12 +4,13 @@ const app = electron.app
 const BrowserWindow = electron.BrowserWindow
 const express = require('express')
 const web = express()
+const namp_base_path = "./namp/";
 const Server = require('http').createServer(web)
 const io = require('socket.io').listen(Server)
-const function_global = require("./namp/function_global.js")
-const version = require('./namp/version.js')
+const function_global = require(`${namp_base_path}function_global.js`)
+const version = require(`${namp_base_path}version.js`)
 const url = require('url')
-const returnAjax = require('./namp/returnAjax.js').returnAjax
+const returnAjax = require(`${namp_base_path}returnAjax.js`).returnAjax
 const ipcMain = require('electron').ipcMain;/*主进程*/
 //const string_decoder = require("string_decoder").StringDecoder;
 //const StringDecoder = new string_decoder();
@@ -28,9 +29,10 @@ ipcMain.on('orignal-window', () => {//还原
 });
 
 process.stdin.setEncoding('utf8');
+
 start();
 function start(){
-    function_global.is_install('./namp/namp_config.json',function(is_install,config){
+    function_global.is_install(`${__dirname}/config.json`,function(is_install,config){
         if(!is_install){/*还没有安装*/
             var open_path = '/index/install.html'
         }else{/*已经安装*/
@@ -55,23 +57,21 @@ function start(){
 }
 /*取得软件版本信息*/
 web.get('/get_versions',function(req,res){
-    var Q = url.parse(req.url,true)
-    version.get(Q.query.v,function(all){
-        returnAjax(req,res,all);
+    version.get(function(software_json){
+        returnAjax(req,res,software_json);
     });
 })
 
 /*取得系统盘符*/
 web.get('/get_drive',function(req,res){
-    var Q = url.parse(req.url,true)
     function_global.get_drive(function(disk){
         returnAjax(req,res,disk);
     })
-})
+});
 
 /*初始安装*/
 var install_ini ={},install_record ={},install_step =1,install_request="",install_tmp;
-const software = require('./namp/software.js')
+const software = require(`${namp_base_path}software.js`)
 web.get('/primary_install',function(req,res){
     install_ini = url.parse(req.url,true).query;
     install_record = {};
