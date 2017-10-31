@@ -12,6 +12,7 @@ const version = require(`${namp_base_path}version.js`)
 const url = require('url')
 const returnAjax = require(`${namp_base_path}returnAjax.js`).returnAjax
 const ipcMain = require('electron').ipcMain;/*主进程*/
+const setting_conf = require(`${namp_base_path}setting_conf.js`).setting_conf //安装时配置
 //const string_decoder = require("string_decoder").StringDecoder;
 //const StringDecoder = new string_decoder();
 
@@ -79,6 +80,7 @@ web.get('/primary_install',function(req,res){
         "info":" 正在检查中,请稍候 ...."
     });
 })
+
 function install_socket(){
     io.on("connection",function(socket){/*socket.io 安装*/
         socket.on("install",function(d){
@@ -86,7 +88,6 @@ function install_socket(){
             install_step =  parseInt(d.install_step);
             if( !("install_step"+install_step in install_record) ){/*避免重复提交*/
                 install_record["install_step"+install_step] = true;
-                console.log(`install in step${install_step}`);
                 switch (install_step){
                     case 1:/*step 检查提交的路径是否是正确的*/
                         ++install_step;
@@ -112,8 +113,11 @@ function install_socket(){
                         break;
                     case 3:/*step 解压软件*/
                         ++install_step;
-                        version.get(function(all){//得到所有软件
-                            software._unzip(all,function(){
+                        version.get(function(software_json){//得到所有软件
+                            software._unzip(software_json,socket,function(all_confs){
+                                setting_conf(all_confs,socket,function(){
+                                    console.log('配置完成');
+                                })
                             })
                         });
                         break;

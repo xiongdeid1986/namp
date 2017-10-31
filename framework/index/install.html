@@ -83,6 +83,12 @@
                                     callback:function callback(json){
                                         /*提交安装回调函数*/
                                         var socket = io.connect("http://localhost:54222");
+
+                                        socket.on("install_status",function(data){
+                                            console.log("----接收到安装状态------")
+                                            ajaxxy.info(data.info, ( data.info_type ? data.info_type : "success" ) ,null,$("#install_form"));/*下一步动作*/
+                                        })
+
                                         var record = {};
                                         var install_request = "";
                                         /*安装目录 脚本*/
