@@ -1,6 +1,8 @@
-function MyAjax(active,data,fn,method,url){
+/*简单ajax提交工具*/
+function EasyAjax(active,data,fn,method,url){
+	this.url = "";
 	if(!url){
-		url = "http://127.0.0.1:54222"
+		url = this.url ? this.url : "http://127.0.0.1:54222";
 	}else{
 		url = url.replace(/\/$/g,"")
 	}
@@ -31,9 +33,19 @@ function MyAjax(active,data,fn,method,url){
 			if(!json){
 				console.log(json)
 			}
-			if(fn){
-				fn(json);
+			try{
+                json = JSON.parse(json)
+			}catch(e){
+				console.log(e);
 			}
+			if(fn instanceof Function){
+				fn(json);
+				return;
+			}
+            if(fn instanceof String){
+                return;
+                window[fn](json);
+            }
 		},
 		error:function(e){
 			

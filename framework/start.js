@@ -27,9 +27,7 @@ ipcMain.on('show-window', () => {//最大化
 ipcMain.on('orignal-window', () => {//还原
     mainWindow.unmaximize();
 });
-
 process.stdin.setEncoding('utf8');
-
 start();
 function start(){
     function_global.is_install(`${__dirname}/config.json`,function(is_install,config){
