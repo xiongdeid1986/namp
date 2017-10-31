@@ -1,0 +1,191 @@
+﻿{
+    "web_server":{
+        "description":"网页服务器",
+        "softs":{
+            "apache":{
+                "path":"/",
+                "file_name":"apache",
+                "description":"稳定性最高的web服务器",
+                "icon":"icon iconfont icon-ApacheActiveMQ",
+                "conf":["conf/httpd.conf","conf/extra/httpd-php-fcgid53.conf","conf/extra/httpd-php-fcgid54.conf","conf/extra/httpd-php-fcgid55.conf","conf/extra/httpd-php-fcgid56.conf","conf/extra/httpd-php-fcgid70.conf","conf/extra/httpd-php-fcgid71.conf","conf/extra/httpd-php-sapi52.conf","conf/extra/httpd-php-sapi53.conf","conf/extra/httpd-php-sapi54.conf","conf/extra/httpd-php-sapi55.conf","conf/extra/httpd-php-sapi71.conf","conf/extra/httpd-vhosts.conf","logs/error.log","logs/install.log"]
+            },
+            "nginx":{
+                "path":"/",
+                "file_name":"nginx",
+                "description":"高性能高并发的web服务器",
+                "icon":"icon iconfont icon-nginx1",
+                "conf":["conf/nginx.conf","conf/php52.conf","conf/php53.conf","conf/php54.conf","conf/php55.conf","conf/php56.conf","conf/php70.conf","conf/php71.conf","conf/vhost/default.conf","conf/vhost/localhost.conf","logs/access.log","logs/error.log"]
+            }
+        }
+    },
+    "php":{
+        "description":"PHP版本",
+        "softs":{
+            "php-5.2.17":{
+                "path":"/php/",
+                "file_name":"php-5.2.17",
+                "description":"PHP-web主流编程语言",
+                "icon":"icon iconfont icon-php7",
+                "conf":["php.ini"]
+            },
+            "php-5.3.29-nts":{
+                "path":"/php/",
+                "description":"PHP-web主流编程语言",
+                "file_name":"php-5.3.29-nts",
+                "icon":"icon iconfont icon-php5",
+                "conf":["php.ini"]
+            },
+            "php-5.4.45":{
+                "path":"/php/",
+                "description":"PHP-web主流编程语言",
+                "file_name":"php-5.4.45",
+                "icon":"icon iconfont icon-php2",
+                "conf":["php.ini"]
+            },
+            "php-5.4.45-nts":{
+                "path":"/php/",
+                "description":"PHP-web主流编程语言",
+                "file_name":"php-5.4.45-nts",
+                "icon":"icon iconfont icon-php2",
+                "conf":["php.ini"]
+            },
+            "php-5.6.27-nts":{
+                "path":"/php/",
+                "description":"PHP-web主流编程语言",
+                "file_name":"php-5.6.27-nts",
+                "icon":"icon iconfont icon-php",
+                "conf":["php.ini"]
+            },
+            "php-7.0.12-nts":{
+                "path":"/php/",
+                "description":"PHP-web主流编程语言",
+                "file_name":"php-7.0.12-nts",
+                "icon":"icon iconfont icon-php1",
+                "conf":["php.ini"]
+            },
+            "php-7.1.4":{
+                "path":"/php/",
+                "file_name":"php-7.1.4",
+                "description":"PHP-web主流编程语言",
+                "icon":"icon iconfont icon-php4",
+                "conf":["php.ini"]
+            },
+            "php-7.1.4-nts":{
+                "path":"/php/",
+                "description":"PHP-web主流编程语言",
+                "file_name":"php-7.1.4-nts",
+                "icon":"icon iconfont icon-php4",
+                "conf":["php.ini"]
+            },
+            "php53":{
+                "path":"/php/",
+                "file_name":"php53",
+                "description":"PHP-web主流编程语言",
+                "icon":"icon iconfont icon-php5",
+                "conf":["php.ini"]
+            },
+            "php53n":{
+                "path":"/php/",
+                "file_name":"php53n",
+                "description":"PHP-web主流编程语言",
+                "icon":"icon iconfont icon-php5",
+                "conf":["php.ini"]
+            },
+            "php54":{
+                "path":"/php/",
+                "file_name":"php54",
+                "description":"PHP-web主流编程语言",
+                "icon":"icon iconfont icon-php2",
+                "conf":["php.ini"]
+            },
+            "php54n":{
+                "path":"/php/",
+                "file_name":"php54n",
+                "description":"PHP-web主流编程语言",
+                "icon":"icon iconfont icon-php2",
+                "conf":["php.ini"]
+            },
+            "php55":{
+                "path":"/php/",
+                "file_name":"php55",
+                "description":"PHP-web主流编程语言",
+                "icon":"icon iconfont icon-php",
+                "conf":["php.ini"]
+            },
+            "php55n":{
+                "path":"/php/",
+                "file_name":"php55n",
+                "description":"PHP-web主流编程语言",
+                "icon":"icon iconfont icon-php",
+                "conf":["php.ini"]
+            }
+        }
+    },
+    "database":{
+        "description":"数据库",
+        "softs":{
+            "mariadb":{
+                "path":"/",
+                "file_name":"mariadb",
+                "icon":"icon iconfont icon-MariaDB",
+                "description":"开源的关系型数据库,使用方法同MySQL.",
+                "conf":["my.ini"],
+                "data":{
+                    "path":"%path%",
+                    "file_name":"mariadb_primary_data",
+                    "conf":[]
+                }
+            },
+            "mongodb":{
+                "path":"/",
+                "file_name":"mongodb",
+                "conf":["mongodb.cfg"],
+                "icon":"icon iconfont icon-mongodb",
+                "description":"开源的文档型NoSQL数据库",
+                "data":{
+                    "path":"%path%",
+                    "file_name":"mongodb_primary_data",
+                    "conf":[]
+                }
+            },
+            "redis":{
+                "path":"/",
+                "file_name":"redis",
+                "icon":"icon iconfont icon-xingzhuang",
+                "description":"高性能key->value数据库",
+                "conf":["redis.windows.conf"]
+            }
+        }
+    },
+    "nodejs":{
+        "description":"NodeJS",
+        "softs":{
+            "nodejs":{
+                "path":"/",
+                "icon":"icon iconfont icon-logo",
+                "file_name":"nodejs",
+                "description":"Node.js",
+                "conf":[]
+            }
+        }
+    },
+    "tools":{
+        "description":"工具软件",
+        "softs":{
+            "HeidiSQL":{
+                "path":"/",
+                "icon":"icon iconfont icon-tools",
+                "file_name":"HeidiSQL",
+                "description":"开源的MySql管理工具",
+                "conf":[]
+            },
+            "vim":{
+                "path":"/",
+                "icon":"fa fa-file-text",
+                "file_name":"Vim",
+                "description":"vim中文编辑器",
+                "conf":[]
+            }
+        }
+    }
+}
