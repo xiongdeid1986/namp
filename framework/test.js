@@ -1,8 +1,8 @@
-var function_global = require("./namp/function_global.js")
+var fn_global = require("./namp/fn_global.js")
 
-function_global.server_is_run("FileZilla Server",function(is){
+fn_global.server_is_run("FileZilla Server",function(is){
     console.log(is);
 })
-function_global.is_server("FileZilla Server",function(is){
+fn_global.is_server("FileZilla Server",function(is){
     console.log(is);
 })

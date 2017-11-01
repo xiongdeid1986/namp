@@ -1,9 +1,9 @@
 const readline = require('readline');
 const fs = require('fs');
-var function_global = require("./function.global/function_global.js");
-var echo_info = function_global.echo_info;
-var step = function_global.step;
-var comfm = function_global.comfm;
+var fn_global = require("./function.global/fn_global.js");
+var echo_info = fn_global.echo_info;
+var step = fn_global.step;
+var comfm = fn_global.comfm;
 var path = require('path');
 echo_info('\033[2J');
 console.log("-------------------------------------------------------------".info);
@@ -52,7 +52,7 @@ rl.question('你想将本系统安装到那个盘?? -> Enter回车默认 D: '.in
     var base_path = path.resolve(__dirname,'../../..')+'/';
     base_path = base_path.replace(/\\/g,'/');
     var app_base_path = base_path+'app/';/*基本路径*/
-    function_global.set_default_path(base_path,rl,function(apache_path,nginx_path){
+    fn_global.set_default_path(base_path,rl,function(apache_path,nginx_path){
         step(3);
         var default_www_root = default_drive+'www_root/';
         rl.question('设置网站目录 默认 '.info+default_www_root.info+' : '.info, (default_wwwroot) => {
@@ -60,7 +60,7 @@ rl.question('你想将本系统安装到那个盘?? -> Enter回车默认 D: '.in
                 default_wwwroot = default_www_root;
             }
             comfm(`您设置的网站存放路径为: ${default_wwwroot}`);
-            function_global.check_path(default_wwwroot,function(exists){
+            fn_global.check_path(default_wwwroot,function(exists){
                 if(!exists){
                     fs.mkdirSync(default_wwwroot);
                 }
@@ -70,9 +70,9 @@ rl.question('你想将本系统安装到那个盘?? -> Enter回车默认 D: '.in
                 console.log(`设置网站目录默认     -->-->->   ${default_wwwroot}`.yellow);
 
                 /*替换Nginx配置*/
-                function_global.set_nginx_conf(app_base_path,default_wwwroot,function(){
+                fn_global.set_nginx_conf(app_base_path,default_wwwroot,function(){
                     /*解压并配置php*/
-                    function_global.unzip_set_software("php",'./../../php/',[
+                    fn_global.unzip_set_software("php",'./../../php/',[
                         'php-5.2.17',
                         'php-5.3.29-nts',
                         'php-5.4.45',
@@ -89,7 +89,7 @@ rl.question('你想将本系统安装到那个盘?? -> Enter回车默认 D: '.in
                         'php55n',
                         'tmp'],app_base_path,base_path,function(){
                         console.log("开始设置 php ●-●".rainbow);
-                        function_global.set_php_ini(app_base_path,function(){
+                        fn_global.set_php_ini(app_base_path,function(){
                             var php_start_command_all = [
                                 `${app_base_path}tools/RunHiddenConsole ${app_base_path}php/php-5.2.17/php-cgi.exe -b 127.0.0.1:9052 -c ${app_base_path}php/php-5.2.17/php.ini`,
                                 `${app_base_path}tools/RunHiddenConsole ${app_base_path}php/php53n/php-cgi.exe -b 127.0.0.1:9053 -c ${app_base_path}php/php53n/php.ini`,
@@ -106,33 +106,33 @@ rl.question('你想将本系统安装到那个盘?? -> Enter回车默认 D: '.in
                                 php_start_command_all+
                                 'start nginx.exe\r\n' +
                                 'echo 重启Nginx结束\r\n' ;
-                                function_global.save_command(command_text,"Nginx重启工具",base_path,`re_nginx.bat`,'045',true/*取得管理员权*/,function(){
+                                fn_global.save_command(command_text,"Nginx重启工具",base_path,`re_nginx.bat`,'045',true/*取得管理员权*/,function(){
                                     var command_text2 = 'taskkill /F /IM nginx.exe\r\n' +
                                         'taskkill /F /IM php-cgi.exe\r\n' +
                                         'echo 停止Nginx成功\r\n';
-                                    function_global.save_command(command_text2,"Nginx停止工具",base_path,`stop_nginx.bat`,'221',true/*取得管理员权*/,function(){
+                                    fn_global.save_command(command_text2,"Nginx停止工具",base_path,`stop_nginx.bat`,'221',true/*取得管理员权*/,function(){
                                         var command_text3 = 'cd '+app_base_path+'nginx\r\n' +/*重新载入Nginx*/
                                             'nginx -s reload\r\n' +
                                             'echo 重新载入Nginx配置成功\r\n';
-                                        function_global.save_command(command_text3,"Nginx重载工具",base_path,`reload_nginx.bat`,'329',true/*取得管理员权*/,function(){
+                                        fn_global.save_command(command_text3,"Nginx重载工具",base_path,`reload_nginx.bat`,'329',true/*取得管理员权*/,function(){
                                             /* php 全部安装完成
                                             * nginx配置文件生成完毕
                                             * nginx工具生成完毕*/
                                             /*解压并配置apache服务*/
-                                            function_global.set_apache_conf(app_base_path,default_wwwroot,base_path,function(){
+                                            fn_global.set_apache_conf(app_base_path,default_wwwroot,base_path,function(){
                                                 var install_apache_command = [`${app_base_path}apache/bin/httpd -k install -n ${apache_server_name}`];
-                                                function_global.spawn(install_apache_command,function(command_all){
+                                                fn_global.spawn(install_apache_command,function(command_all){
                                                     /*生成apache 工具*/
                                                     var re_apache = 'taskkill /F /IM nginx.exe\r\n' +
                                                     'taskkill /F /IM php-cgi.exe\r\n' +
                                                     `net stop ${apache_server_name}\r\n` +
                                                     `net start ${apache_server_name}\r\n`;
-                                                    function_global.save_command(re_apache,"apache重启",base_path,`re_apache.bat`,'329',true/*取得管理员权*/,function(){
+                                                    fn_global.save_command(re_apache,"apache重启",base_path,`re_apache.bat`,'329',true/*取得管理员权*/,function(){
                                                         var stop_apache = `net stop ${apache_server_name}\r\n`;
-                                                        function_global.save_command(stop_apache,"apache停止",base_path,`stop_apache.bat`,'329',true/*取得管理员权*/,function(){
-                                                            function_global.create_link(`${app_base_path}apache/conf/extra/httpd-vhosts.conf`,`${base_path}Apache网站配置文件.url`,'002',function(){
+                                                        fn_global.save_command(stop_apache,"apache停止",base_path,`stop_apache.bat`,'329',true/*取得管理员权*/,function(){
+                                                            fn_global.create_link(`${app_base_path}apache/conf/extra/httpd-vhosts.conf`,`${base_path}Apache网站配置文件.url`,'002',function(){
                                                                 /*创建成功apache网站配置文件*/
-                                                                function_global.create_link(`${app_base_path}nginx/conf/vhost/`,`${base_path}Nginx网站配置目录.url`,'002',function(){
+                                                                fn_global.create_link(`${app_base_path}nginx/conf/vhost/`,`${base_path}Nginx网站配置目录.url`,'002',function(){
                                                                     /*创建成功apache网站配置文件*/
 
                                                                 });
@@ -150,15 +150,15 @@ rl.question('你想将本系统安装到那个盘?? -> Enter回车默认 D: '.in
 
                 /*解压并配置 mariadb */
                 var mariadb_server_name = 'MySql';
-                function_global.unzip_set_software("mariadb",'./../../',['mariadb'],app_base_path,base_path,function(zip_version){
+                fn_global.unzip_set_software("mariadb",'./../../',['mariadb'],app_base_path,base_path,function(zip_version){
                     /*mariadb解压完毕*/
                     console.log(" mariadb解压完毕 ●-●".rainbow);
                     var default_mariadb_data = default_drive+"mysql_data/";
                     fs.mkdir(default_mariadb_data,function(e){
-                        function_global.unzip_set_software("mariadb_primary_data",default_mariadb_data,['mariadb_primary_data'],app_base_path,base_path,function(){
+                        fn_global.unzip_set_software("mariadb_primary_data",default_mariadb_data,['mariadb_primary_data'],app_base_path,base_path,function(){
                             /*mariadb解压初始数据*/
                             console.log(" mariadb 初始数据解压完毕 ●-●".rainbow);
-                            function_global.set_mariadb(app_base_path,base_path,default_mariadb_data,function(){
+                            fn_global.set_mariadb(app_base_path,base_path,default_mariadb_data,function(){
                                 console.log("开始设置 mariadb ●-●".rainbow);
                                 /*安装 mariadb */
                                 var instll_command = [
@@ -166,10 +166,10 @@ rl.question('你想将本系统安装到那个盘?? -> Enter回车默认 D: '.in
                                     `${app_base_path}mariadb/bin/mysqld.exe --install-manual "${mariadb_server_name}"`,
                                     `net start mysql`
                                 ];
-                                function_global.spawn(instll_command,function(command_all){
+                                fn_global.spawn(instll_command,function(command_all){
                                     var command = `net stop ${mariadb_server_name}\r\n`+
                                         `net start ${mariadb_server_name}`;
-                                    function_global.save_command(command,`${mariadb_server_name}重启工具`,base_path,`re_${mariadb_server_name}.bat`,'045',true/*取得管理员权*/,function(){
+                                    fn_global.save_command(command,`${mariadb_server_name}重启工具`,base_path,`re_${mariadb_server_name}.bat`,'045',true/*取得管理员权*/,function(){
 
                                     });
                                 });

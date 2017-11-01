@@ -7,14 +7,15 @@ const web = express()
 const namp_base_path = "./namp/";
 const Server = require('http').createServer(web)
 const io = require('socket.io').listen(Server)
-const function_global = require(`${namp_base_path}function_global.js`)
-const version = require(`${namp_base_path}version.js`)
+const fn_global = require(`${namp_base_path}fn_global.js`)
+const software_config = require(`${namp_base_path}software_config.js`)
 const url = require('url')
 const returnAjax = require(`${namp_base_path}returnAjax.js`).returnAjax
 const ipcMain = require('electron').ipcMain;/*主进程*/
 const setting_conf = require(`${namp_base_path}setting_conf.js`).setting_conf //安装时配置
 const software = require(`${namp_base_path}software_conduct.js`)//软件解压处理.
 const fs = require('fs')
+const install_namp = require(`${namp_base_path}install_namp.js`);
 //const string_decoder = require("string_decoder").StringDecoder;
 //const StringDecoder = new string_decoder();
 
@@ -33,7 +34,7 @@ ipcMain.on('orignal-window', () => {//还原
 process.stdin.setEncoding('utf8');
 start();
 function start(){
-    function_global.is_install(`${__dirname}/config.json`,function(is_install,config){
+    install_namp.is_install(`${__dirname}/config.json`,function(is_install,config){
         if(!is_install){/*还没有安装*/
             var open_path = '/index/install.html'
         }else{/*已经安装*/
@@ -57,15 +58,18 @@ function start(){
     })
 }
 /*取得软件版本信息*/
+var software_json;
 web.get('/get_versions',function(req,res){
-    version.get(function(software_json){
+    software_config.get(function(soft_json){
+        software_json = soft_json
         returnAjax(req,res,software_json);
     });
 })
 
+const drive = require(`${namp_base_path}drive.js`)
 /*取得系统盘符*/
 web.get('/get_drive',function(req,res){
-    function_global.get_drive(function(disk){
+    drive.get_drive(function(disk){
         returnAjax(req,res,disk);
     })
 });
@@ -95,7 +99,7 @@ function install_socket(){
                         install_tmp = [{"name":"mongodb_data","path":install_ini.mongodb_data.replace(/\:.+/,':/'),"complete_path":install_ini.mongodb_data},
                             {"name":"mysql_data" ,"path":install_ini.mysql_data.replace(/\:.+/,':/'),"complete_path":install_ini.mysql_data},
                             {"name":"www_root" ,"path" : install_ini.www_root.replace(/\:.+/,':/'),"complete_path":install_ini.www_root}];
-                        function_global.check_path_all(install_tmp,function(check_ok,r){
+                        fn_global.check_path_all(install_tmp,function(check_ok,r){
                             var o ={}
                             if(check_ok){/*路径存在 ,开始安装*/
                                 o = {"install_step":install_step,"status":true,"data":install_ini}
@@ -108,23 +112,20 @@ function install_socket(){
                     case 2:/*step 创建路径*/
                         ++install_step;
                         var complete_path = [install_ini.mongodb_data,install_ini.mysql_data,install_ini.www_root];
-                        function_global.all_mkdir(complete_path,function(){
+                        fn_global.all_mkdir(complete_path,function(){
                             socket.emit("install",{"install_step":install_step,"status":true,"data":complete_path.length});
                         });
                         break;
                     case 3:/*step 解压软件*/
                         ++install_step;
-                        version.get(function(software_json){//得到所有软件
-                            software._unzip(software_json,socket,install_ini,function(all_confs){
-                                fs.writeFile("./test/confs.json",JSON.stringify(all_confs),function(e){
-                                    console.log(e)
+                        software._unzip(software_json,socket,install_ini,function(all_confs){
+                            setting_conf(all_confs,install_ini,socket,function(){
+                                install_namp.command_install(socket,function(){
+
                                 })
-                                return;
-                                setting_conf(all_confs,install_ini,socket,function(){
-                                    console.log('配置完成');
-                                })
-                            },true)
-                        });
+                                console.log('配置完成');
+                            })
+                        },true)
                         break;
                 }
             }

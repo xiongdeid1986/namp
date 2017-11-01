@@ -219,7 +219,7 @@
                     "path":"/",
                     "folder_name":"mongodb_primary_data",
                     "file_name":"mongodb_primary_data.zip",
-                    "conf":[]
+                    "conf":["mongodb.cfg"]
                 }
             },
             "redis":{
