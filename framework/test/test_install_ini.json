@@ -1,0 +1,12 @@
+{
+	"jsoncallback": "jQuery110209765110551696388_1509513429048",
+	"mongodb_data": "D:/www_working/database/mongo_data",
+	"mysql_data": "D:/www_working/database/mysql_data",
+	"www_root": "D:/www_working/wwwroot",
+	"mariadb_password": "np07ar",
+	"mariadb_user": "root",
+	"mariadb_port": "3306",
+	"http_port": "80",
+	"web_server": "nginx",
+	"_": "1509513429052"
+}

@@ -13,6 +13,8 @@ const url = require('url')
 const returnAjax = require(`${namp_base_path}returnAjax.js`).returnAjax
 const ipcMain = require('electron').ipcMain;/*主进程*/
 const setting_conf = require(`${namp_base_path}setting_conf.js`).setting_conf //安装时配置
+const software = require(`${namp_base_path}software_conduct.js`)//软件解压处理.
+const fs = require('fs')
 //const string_decoder = require("string_decoder").StringDecoder;
 //const StringDecoder = new string_decoder();
 
@@ -70,7 +72,6 @@ web.get('/get_drive',function(req,res){
 
 /*初始安装*/
 var install_ini ={},install_record ={},install_step =1,install_request="",install_tmp;
-const software = require(`${namp_base_path}software.js`)
 web.get('/primary_install',function(req,res){
     install_ini = url.parse(req.url,true).query;
     install_record = {};
@@ -114,11 +115,15 @@ function install_socket(){
                     case 3:/*step 解压软件*/
                         ++install_step;
                         version.get(function(software_json){//得到所有软件
-                            software._unzip(software_json,socket,function(all_confs){
-                                setting_conf(all_confs,socket,function(){
+                            software._unzip(software_json,socket,install_ini,function(all_confs){
+                                fs.writeFile("./test/confs.json",JSON.stringify(all_confs),function(e){
+                                    console.log(e)
+                                })
+                                return;
+                                setting_conf(all_confs,install_ini,socket,function(){
                                     console.log('配置完成');
                                 })
-                            })
+                            },true)
                         });
                         break;
                 }
