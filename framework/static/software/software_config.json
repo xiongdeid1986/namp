@@ -11,6 +11,16 @@
                 "description":"稳定性最高的web服务器",
                 "icon":"icon iconfont icon-ApacheActiveMQ",
                 "icon_type":"icon",
+                "server_name":"httpd",
+                "command":{
+                    "install":["%this_path%bin\\httpd -k install -n \"%server_name%\""],
+                    "uninstall":["%this_path%bin\\httpd -k uninstall -n %server_name%"],
+                    "start":["net start %server_name%"],
+                    "stop":["net stop %server_name%"],
+                    "restart":["net stop %server_name%","net start %server_name%"],
+                    "reload":["net stop %server_name%","net start %server_name%"],
+                    "windows_path":["%this_path%bin"]
+                },
                 "conf":["conf/httpd.conf","conf/extra/httpd-php-fcgid53.conf","conf/extra/httpd-php-fcgid54.conf","conf/extra/httpd-php-fcgid55.conf","conf/extra/httpd-php-fcgid56.conf","conf/extra/httpd-php-fcgid70.conf","conf/extra/httpd-php-fcgid71.conf","conf/extra/httpd-php-sapi52.conf","conf/extra/httpd-php-sapi53.conf","conf/extra/httpd-php-sapi54.conf","conf/extra/httpd-php-sapi55.conf","conf/extra/httpd-php-sapi71.conf","conf/extra/httpd-vhosts.conf","logs/error.log","logs/install.log"]
             },
             "nginx":{
@@ -274,6 +284,17 @@
                 "folder_name":"Vim",
                 "file_name":"Vim.zip",
                 "description":"vim 中文编辑器",
+                "conf":[]
+            },
+            "nircmd":{
+                "path":"/",
+                "text_color":"text-muted",
+                "icon_type":"img",
+                "icon":"assets/icon/soft/nirsoft2.gif",
+                "version":"2.81",
+                "folder_name":"nircmd",
+                "file_name":"nircmd.zip",
+                "description":"NirCmd是一套免费的命令列指令，提供许多控制Windows的参数。",
                 "conf":[]
             }
         }

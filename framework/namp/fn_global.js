@@ -81,52 +81,6 @@ exports.check_path_all = function check_path_all(pashJson,callback){
 }
 
 
-
-exports.save_command = function(command_text,command_name,base_path,path,icon_number,is_admin,callback){
-    var path = base_path+'app/tools/'+path;
-    var command_title = '^*动点世纪科技(www.ddweb.com.cn) NAMP--^>'+command_name;
-    command_text = 'title '+command_title+"\r\n"+
-        'echo ^*\r\n'+
-        'echo ^*\r\n'+
-        'echo -----------------------------└(^o^)┘-------------------\r\n' +
-        'echo '+command_title+' \r\n' +
-        'echo ^*\r\n'+
-        'echo ^*\r\n'+
-        'echo ^*\r\n'+
-        command_text;
-    var admin_command = '@echo off\r\n'+
-        '>nul 2>&1 "%SYSTEMROOT%\\system32\\cacls.exe" "%SYSTEMROOT%\\system32\\config\\system"\r\n' +
-        'if \'%errorlevel%\' NEQ \'0\' (\r\n' +
-        'goto UACPrompt\n' +
-        ') else ( goto gotAdmin )\r\n' +
-        ':UACPrompt\r\n' +
-        'echo Set UAC = CreateObject^("Shell.Application"^) > "%temp%\\getadmin.vbs"\r\n' +
-        'echo UAC.ShellExecute "%~s0", "", "", "runas", 1 >> "%temp%\\getadmin.vbs"\r\n' +
-        '"%temp%\\getadmin.vbs"\r\n' +
-        'exit /B\r\n' +
-        ':gotAdmin\r\n' +
-        'if exist "%temp%\\getadmin.vbs" ( del "%temp%\\getadmin.vbs" )\r\n' +
-        'pushd "%CD%"\r\n' +
-        'CD /D "%~dp0"\r\n';
-    if(is_admin){
-        command_text = admin_command+command_text;
-    }
-    command_text += '\r\ncmd';
-    command_text = iconv.encode(command_text, 'gbk');
-    fs.writeFile(path,command_text,function(e){
-        if(e){
-            console.log(e);
-        }
-        var success = "生成"+command_name+"成功 -_-";
-        console.log(success.info);
-        var url_file = `${base_path}${command_name}.url`;
-        create_link(path,url_file,icon_number,function(){
-            callback();
-        });
-
-    });
-}
-
 function create_link(path,url_file,icon_number,callback){
     child_process.exec(`echo [InternetShortcut]>>"${url_file}"`,function(err,standard_output,standard_error){
         child_process.exec(`echo URL="${path}">>"${url_file}"`,function(err,standard_output,standard_error){

@@ -2,23 +2,43 @@ const child_process = require('child_process');
 const iconv = require('iconv-lite');
 const encoding = 'cp936';
 const binaryEncoding = 'binary';
-
+const fs = require('fs');
+const app_base_path = (path.resolve(__dirname,"../../")+'/app/').replace(/\\/g,"/");
 /*
+*
+* 使用nircmd提权执行*/
+function nircmd(command,callback,debut){
+    if(command instanceof String){
+        child_process.execFileSync(`${app_base_path}tools/nircmd/nircmd.exe`, [`elevate ${command}`], (error, stdout, stderr) => {
+                if (error) {
+                    throw error;
+                }
+                console.log(stdout);
+        });
+    }
+
+}
+exports.nircmd = nircmd;
+/*
+
 
 执行一组 spawn 命令*/
 function spawn(command,callback/*服务名,用于判断该服务是否已经被安装*/,debug){
     (function execCommand(i){
-        var command_text = command[i];
-        var command_exec = child_process.exec(command_text,{ encoding: binaryEncoding },function(err,standard_output,standard_error){
+        var command_once = command[i];
+        if(debug){
+            console.log(command_once)
+        }
+        var command_exec = child_process.exec(command_once,{ encoding: binaryEncoding },function(err,standard_output,standard_error){
             /*必须转码为 gbk*/
             var success =  iconv.decode(new Buffer(standard_output, binaryEncoding), encoding);
             var fail =  iconv.decode(new Buffer(standard_error, binaryEncoding), encoding);
             var command_result = success || fail;
             if(success && debug){
-                console.log("success: =>".red + success.red);
+                console.log("success: =>" + success);
             }
             if(fail && debug){
-                console.log("fail: =>".yellow + fail.yellow + " 命令行 => ".red+command_text.red);
+                console.log("fail: =>" + fail + " 命令行 => "+command_once);
             }
             i++;
             if(i < command.length){
@@ -37,8 +57,9 @@ function spawn(command,callback/*服务名,用于判断该服务是否已经被�
         });
     })(0);
 }
-exports.spawn = spawn
-
+exports.spawn = spawn;
+exports.execFileSync = child_process.execFileSync;
+exports.execFile = child_process.execFile;
 /*
 
 查询系统是否有该服务*/
@@ -82,6 +103,49 @@ exports.server_is_run = function(server_name,callback){
                     console.log(`server run ${is_run.toString()}`)
                 }
             });
+        }
+    });
+}
+
+
+//保存一个命令
+exports.save_command = function(command,target_path,is_admin,callback,is_cmd){
+    var command_text = "";
+    if(command instanceof Array){
+        for(var i = 0 ;i<command.length;i++){
+            command_text+=command[i]+"\r\n";
+        }
+    }
+    if(command instanceof String){
+        command_text+=command[i]+"\r\n";
+    }
+    const admin_command = '@echo off\r\n'+
+        '>nul 2>&1 "%SYSTEMROOT%\\system32\\cacls.exe" "%SYSTEMROOT%\\system32\\config\\system"\r\n' +
+        'if \'%errorlevel%\' NEQ \'0\' (\r\n' +
+        'goto UACPrompt\n' +
+        ') else ( goto gotAdmin )\r\n' +
+        ':UACPrompt\r\n' +
+        'echo Set UAC = CreateObject^("Shell.Application"^) > "%temp%\\getadmin.vbs"\r\n' +
+        'echo UAC.ShellExecute "%~s0", "", "", "runas", 1 >> "%temp%\\getadmin.vbs"\r\n' +
+        '"%temp%\\getadmin.vbs"\r\n' +
+        'exit /B\r\n' +
+        ':gotAdmin\r\n' +
+        'if exist "%temp%\\getadmin.vbs" ( del "%temp%\\getadmin.vbs" )\r\n' +
+        'pushd "%CD%"\r\n' +
+        'CD /D "%~dp0"\r\n';
+    if(is_admin){
+        command_text = admin_command+command_text;
+    }
+    if(is_cmd){
+        command_text += '\r\ncmd';
+    }
+    command_text = iconv.encode(command_text, 'gbk');
+    fs.writeFile(target_path,command_text,function(e){
+        if(e){
+            console.log(e);
+        }
+        if(callback){
+            callback();
         }
     });
 }
