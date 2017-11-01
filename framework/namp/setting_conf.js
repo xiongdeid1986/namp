@@ -18,6 +18,27 @@ function setting_conf_dispose(all_confs,install_ini,socket,callback){
             "info":`开始配置环境`
         })
     }
+    var conf_type_arr = []
+    for(var p1 in all_confs){
+        conf_type_arr.push(p1)
+    }
+    (function config_type(i){
+        var config_type = conf_type_arr[i]
+        var confs = all_confs[config_type]
+        var conf_arr = []
+        for(var p in confs){
+            conf_arr.push(p)
+        }
+        (function config_arr(j){
+            var conf = conf_arr[j]
+            var conf_end_arr = confs[conf]
+            (function start_setting_conf(k){
+                var tmp_path = conf_end_arr[k]
+                console.log(tmp_path)
+            })(0)
+        })(0)
+    })(0)
+    return
     for(var p1 in all_confs){
         var conf1 = all_confs[p1]//p1 == web_server
         for(var p2 in conf1){
