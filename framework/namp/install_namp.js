@@ -38,25 +38,62 @@ function command_install(socket,fn){
                 soft_arr.push(p2);
             }
             (function dispose_soft_arr(j){
-                var soft = soft_arr[j];
-                var soft_info = softs[soft];
-                var install_command_arr = []
-                var folder_name = soft_info.folder_name;
-                var server_name = soft_info.server_name;
-                var this_path = `${app_base_path}${soft_type}/${folder_name}/`.replace(/\//g,'\\');
-                for(var u=0;u<soft_info.install_command.length;u++){
-                    install_command_arr.push(soft_info.install_command[u].replace(/\%this_path\%/g,this_path).replace(/\%server_name\%/g,server_name))
+                var soft = soft_arr[j],
+                 soft_info = softs[soft],
+                 command_arr = [],
+                 folder_name = soft_info.folder_name,
+                 server_name = soft_info.server_name,
+                 this_path = `${app_base_path}${soft_type}/${folder_name}/`.replace(/\//g,'\\'),
+                 soft_command = {},//本软件命令合集
+                 install_command = [],//安装命令合集
+                 uninstall_command = [],//卸载命令合集
+                 start_command = [],//开始命令合集
+                 stop_command = [],//停止命令合集
+                 restart_command = [],//重启命令合集
+                 reload_command = [],//重载命令合集
+                 windows_path = "";//是否添加到windows path
+                if("command" in soft_info){
+                    soft_command = soft_info.command;
+                    if("install" in soft_command){
+                        install_command = soft_command.install;
+                    }
+                    if("uninstall" in soft_command){
+                        uninstall_command = soft_command.uninstall;
+                    }
+                    if("start" in soft_command){
+                        start_command = soft_command.start;
+                    }
+                    if("stop" in soft_command){
+                        stop_command = soft_command.stop;
+                    }
+                    if("restart" in soft_command){
+                        restart_command = soft_command.restart;
+                    }
+                    if("reload" in soft_command){
+                        reload_command = soft_command.reload;
+                    }
+                    if("windows_path" in soft_command){
+                        windows_path = soft_command.windows_path;
+                    }
                 }
+                for(var u=0;u<install_command.length;u++){
+                    //command_arr.push(install_command[u].replace(/\%this_path\%/g,this_path).replace(/\%server_name\%/g,server_name));
+                }
+                for(var u=0;u<uninstall_command.length;u++){
+                    command_arr.push(uninstall_command[u].replace(/\%this_path\%/g,this_path).replace(/\%server_name\%/g,server_name));
+                }
+                command.spawn(command_arr,function(command_result){
+                    console.log(`execute finish! ${command_result}`)
+                },true/*debug*/);
                 //var save_command_path = `${app_base_path}tools/bat_tools/install_command.bat`;
                 //command.save_command(install_command_arr,save_command_path,true,function(){
                     //command.execFile(save_command_path,function(e){
                         //console.log(e)
                     //})
                 //});
-                command.nircmd
-                command.spawn(install_command_arr,function(command_result){
-                    console.log(`execute finish! ${command_result}`)
-                },true/*debug*/)
+                //command.spawn(install_command_arr,function(command_result){
+                //    console.log(`execute finish! ${command_result}`)
+                //},true/*debug*/)
             })(0);
         })(0);
         //

@@ -3,31 +3,54 @@ const iconv = require('iconv-lite');
 const encoding = 'cp936';
 const binaryEncoding = 'binary';
 const fs = require('fs');
+const path = require("path")
 const app_base_path = (path.resolve(__dirname,"../../")+'/app/').replace(/\\/g,"/");
+const nircmd_path = `${app_base_path}tools/nircmd/nircmd.exe elevate `;
+
 /*
-*
 * 使用nircmd提权执行*/
 function nircmd(command,callback,debut){
-    if(command instanceof String){
-        child_process.execFileSync(`${app_base_path}tools/nircmd/nircmd.exe`, [`elevate ${command}`], (error, stdout, stderr) => {
-                if (error) {
+    if(typeof command == "string"){
+        command = [command];
+    }
+    if(typeof command == "array"){
+        var result = [];
+        (function execute_command(i){
+            var command_once = command[i];
+            child_process.exec(`${nircmd_path}${command_once}`, (error, stdout, stderr) => {
+                if (error){
                     throw error;
                 }
-                console.log(stdout);
+                let r = `${stdout}${stderr}`;
+                result.push(r);
+                if(!callback){
+                    console.log(r);
+                }
+                i++;
+                if(i<command.length){
+                    execute_command(i);
+                }else{
+                    if(callback){
+                        callback(result);
+                    }
+                }
         });
+        })(0);
     }
-
 }
 exports.nircmd = nircmd;
 /*
 
 
 执行一组 spawn 命令*/
-function spawn(command,callback/*服务名,用于判断该服务是否已经被安装*/,debug){
+function exec(command,callback/*服务名,用于判断该服务是否已经被安装*/,debug){
+    if(typeof command == 'string'){
+        command = [command];
+    }
     (function execCommand(i){
         var command_once = command[i];
         if(debug){
-            console.log(command_once)
+            console.log(command_once);
         }
         var command_exec = child_process.exec(command_once,{ encoding: binaryEncoding },function(err,standard_output,standard_error){
             /*必须转码为 gbk*/
@@ -48,16 +71,61 @@ function spawn(command,callback/*服务名,用于判断该服务是否已经被�
                 command_exec.on('close', function() {
                     if(callback){
                         callback(command_result);
+                        return;
                     }
                 });
                 if(callback){
                     callback(command_result);
+                    return;
+                }
+            }
+        });
+    })(0);
+}
+exports.exec = exec;
+/*
+
+
+执行一组 spawn 命令*/
+function spawn(command,callback/*服务名,用于判断该服务是否已经被安装*/,debug){
+    if(typeof command == 'string'){
+        command = [command];
+    }
+    (function execCommand(i){
+        var command_once = `${nircmd_path}${command[i]}`;
+        if(debug){
+            console.log(`execute start => ${command_once}`);
+        }
+        var command_exec = child_process.spawn(`${command_once}`,{ encoding: binaryEncoding },function(err,standard_output,standard_error){
+            /*必须转码为 gbk*/
+            var success =  iconv.decode(new Buffer(standard_output, binaryEncoding), encoding);
+            var fail =  iconv.decode(new Buffer(standard_error, binaryEncoding), encoding);
+            var command_result = success || fail;
+            if(debug){
+                console.log(`${command_once} =>${command_result}` );
+            }
+            i++;
+            if(i < command.length){
+                execCommand(i);
+            }else{
+                command_exec.stdin.end();   // stop the input pipe, in order to run in windows xp
+                command_exec.on('close', function() {
+                    if(callback){
+                        callback(command_result);
+                        return;
+                    }
+                });
+                if(callback){
+                    callback(command_result);
+                    return;
                 }
             }
         });
     })(0);
 }
 exports.spawn = spawn;
+/*
+* */
 exports.execFileSync = child_process.execFileSync;
 exports.execFile = child_process.execFile;
 /*

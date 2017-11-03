@@ -14,7 +14,7 @@
                 "server_name":"httpd",
                 "command":{
                     "install":["%this_path%bin\\httpd -k install -n \"%server_name%\""],
-                    "uninstall":["%this_path%bin\\httpd -k uninstall -n %server_name%"],
+                    "uninstall":["net stop %server_name%","%this_path%bin\\httpd -k uninstall -n %server_name%"],
                     "start":["net start %server_name%"],
                     "stop":["net stop %server_name%"],
                     "restart":["net stop %server_name%","net start %server_name%"],
@@ -32,6 +32,16 @@
                 "description":"高性能高并发的web服务器",
                 "icon":"icon iconfont icon-nginx1",
                 "icon_type":"icon",
+                "server_name":"_self",
+                "command":{
+                    "install":[],
+                    "uninstall":[],
+                    "start":[],
+                    "stop":[],
+                    "restart":[],
+                    "reload":[],
+                    "windows_path":[]
+                },
                 "conf":["conf/nginx.conf","conf/php52.conf","conf/php53.conf","conf/php54.conf","conf/php55.conf","conf/php56.conf","conf/php70.conf","conf/php71.conf","conf/vhost/default.conf","conf/vhost/localhost.conf","logs/access.log","logs/error.log"]
             }
         }
