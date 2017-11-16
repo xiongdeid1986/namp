@@ -9,39 +9,40 @@ const nircmd_path = `${app_base_path}tools/nircmd/nircmd.exe elevate `;
 
 /*
 * 使用nircmd提权执行*/
-function nircmd(command,callback,debut){
+function nircmd(command,callback,debug){
     if(typeof command == "string"){
         command = [command];
     }
-    if(typeof command == "array"){
-        var result = [];
-        (function execute_command(i){
-            var command_once = command[i];
-            child_process.exec(`${nircmd_path}${command_once}`, (error, stdout, stderr) => {
-                if (error){
-                    throw error;
-                }
-                let r = `${stdout}${stderr}`;
-                result.push(r);
-                if(!callback){
-                    console.log(r);
-                }
-                i++;
-                if(i<command.length){
-                    execute_command(i);
-                }else{
-                    if(callback){
-                        callback(result);
-                    }
-                }
-        });
-        })(0);
-    }
+    var result = [];
+    (function execute_command(i){
+        var command_once = command[i],execute_command_re = `${nircmd_path}${command_once}`.replace(/\//g,"\\");
+        if(debug){
+            console.log(command_once);console.log(execute_command_re);
+        }
+        child_process.execFile(`${app_base_path}tools/nircmd/nircmd.exe`,["elevate net start httpd"], (error, stdout, stderr) => {
+            if (error){
+                throw error;
+            }
+            var r = `${stdout}${stderr}`;
+        result.push(r);
+        if(!callback || debug){
+            console.log(debug);
+        }
+        i++;
+        if(i<command.length){
+            execute_command(i);
+        }else{
+            if(callback){
+                callback(result);
+            }
+        }
+    });
+    })(0);
 }
 exports.nircmd = nircmd;
+
+
 /*
-
-
 执行一组 spawn 命令*/
 function exec(command,callback/*服务名,用于判断该服务是否已经被安装*/,debug){
     if(typeof command == 'string'){
@@ -83,6 +84,7 @@ function exec(command,callback/*服务名,用于判断该服务是否已经被�
     })(0);
 }
 exports.exec = exec;
+
 /*
 
 
@@ -91,34 +93,36 @@ function spawn(command,callback/*服务名,用于判断该服务是否已经被�
     if(typeof command == 'string'){
         command = [command];
     }
-    (function execCommand(i){
-        var command_once = `${nircmd_path}${command[i]}`;
+    (function spawnCommand(i){
+        var the_command = command[i];
+        var command_once_split = the_command.replace(/^\s*|\s*$/g,"").replace(/\s{2,}/g," ").split(" ");
         if(debug){
-            console.log(`execute start => ${command_once}`);
+            console.log(`execute command => ${command_once_split}`);
         }
-        var command_exec = child_process.spawn(`${command_once}`,{ encoding: binaryEncoding },function(err,standard_output,standard_error){
-            /*必须转码为 gbk*/
-            var success =  iconv.decode(new Buffer(standard_output, binaryEncoding), encoding);
-            var fail =  iconv.decode(new Buffer(standard_error, binaryEncoding), encoding);
-            var command_result = success || fail;
-            if(debug){
-                console.log(`${command_once} =>${command_result}` );
+        var command_once = command_once_split.splice(0,1)[0];
+        var spawn_execute = child_process.spawn(command_once,command_once_split);
+        var out_re = "";
+        spawn_execute.stdout.on('data', (data) => {
+            data =  iconv.decode(new Buffer(data, binaryEncoding), encoding);
+            out_re += data;
+            if(debug || !callback){
+                console.log(`stdout : ${data}`);
             }
-            i++;
-            if(i < command.length){
-                execCommand(i);
-            }else{
-                command_exec.stdin.end();   // stop the input pipe, in order to run in windows xp
-                command_exec.on('close', function() {
-                    if(callback){
-                        callback(command_result);
-                        return;
-                    }
-                });
-                if(callback){
-                    callback(command_result);
-                    return;
-                }
+        });
+        spawn_execute.stderr.on('data', (data) => {
+            data =  iconv.decode(new Buffer(data, binaryEncoding), encoding);
+            out_re += data;
+            if(debug || !callback){
+                console.log(`stderr : ${data}`);
+            }
+        });
+        spawn_execute.on("close",(code) => {
+            if(debug || !callback){
+                console.log(code);
+                console.log(out_re);
+            }
+            if(callback){
+                callback(out_re);
             }
         });
     })(0);
@@ -129,7 +133,7 @@ exports.spawn = spawn;
 exports.execFileSync = child_process.execFileSync;
 exports.execFile = child_process.execFile;
 /*
-
+*
 查询系统是否有该服务*/
 function is_server(server_name,callback){
     child_process.exec(`SC QUERY "${server_name}"`,{ encoding: binaryEncoding },function(err,standard_output,standard_error){

@@ -4,26 +4,18 @@ const software_config = require(`./software_config.js`);
 const command = require(`./command.js`);
 const path = require("path");
 const app_base_path = (path.resolve(__dirname,"../../")+'/app/').replace(/\\/g,"/");
+const config = require(`./config.js`);
 
-exports.is_install = function(namp_config,callback){
-    fs.readFile(namp_config,function(e,config){
-        if(e){
-            console.log(e)
+exports.is_install = function(callback){
+    config.get(function(config){
+        var IsInstall = true;/*没有配置文件,还没有安装*/
+        if(config == {} || !("install" in config) || !("apache" in config)  || !("nginx" in config) || !("mariadb" in config) || !("redis" in config) && config['install'] == true ){/*初始安装*/
+            IsInstall = false;
         }
-        config=config.toString()
-        try{
-            config = JSON.parse(config)
-        }catch(e){
-            config = {}
-        }
-        /*没有配置文件,还没有安装*/
-        if(config == {} || !("install" in config) || !("apache" in config)  || !("nginx" in config) || !("mariadb" in config) || !("redis" in config) ){/*初始安装*/
-            callback(false,config)
-        }else{/*已经安装*/
-            callback(true,config)
-        }
-    })
+        if(callback) callback(IsInstall,config);
+    });
 }
+
 function command_install(socket,fn){
     software_config.get(function(softJson){
         var soft_type_arr = [];
@@ -83,7 +75,7 @@ function command_install(socket,fn){
                     command_arr.push(uninstall_command[u].replace(/\%this_path\%/g,this_path).replace(/\%server_name\%/g,server_name));
                 }
                 command.spawn(command_arr,function(command_result){
-                    console.log(`execute finish! ${command_result}`)
+                    console.log(`execute finish! ${command_result}`);
                 },true/*debug*/);
                 //var save_command_path = `${app_base_path}tools/bat_tools/install_command.bat`;
                 //command.save_command(install_command_arr,save_command_path,true,function(){
@@ -96,8 +88,7 @@ function command_install(socket,fn){
                 //},true/*debug*/)
             })(0);
         })(0);
-        //
     });
 }
-command_install();
-exports.command_install = command_install
+
+exports.command_install = command_install;

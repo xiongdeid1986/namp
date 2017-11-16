@@ -7,7 +7,7 @@ exports.get = function ( name, callback ){
         callback = name;
         j = softwares;
     }else{
-        j = softwares[name]
+        j = softwares[name];
     }
     if(callback){
         callback(j)

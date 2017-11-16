@@ -1,21 +1,22 @@
-const path = require('path')
-const electron = require('electron')
-const app = electron.app
-const BrowserWindow = electron.BrowserWindow
-const express = require('express')
-const web = express()
+const path = require('path');
+const electron = require('electron');
+const app = electron.app;
+const BrowserWindow = electron.BrowserWindow;
+const express = require('express');
+const web = express();
 const namp_base_path = "./namp/";
-const Server = require('http').createServer(web)
-const io = require('socket.io').listen(Server)
-const fn_global = require(`${namp_base_path}fn_global.js`)
-const software_config = require(`${namp_base_path}software_config.js`)
-const url = require('url')
-const returnAjax = require(`${namp_base_path}returnAjax.js`).returnAjax
+const Server = require('http').createServer(web);
+const io = require('socket.io').listen(Server);
+const fn_global = require(`${namp_base_path}fn_global.js`);
+const software_config = require(`${namp_base_path}software_config.js`);
+const url = require('url');
+const returnAjax = require(`${namp_base_path}returnAjax.js`).returnAjax;
 const ipcMain = require('electron').ipcMain;/*主进程*/
-const setting_conf = require(`${namp_base_path}setting_conf.js`).setting_conf //安装时配置
-const software = require(`${namp_base_path}software_conduct.js`)//软件解压处理.
-const fs = require('fs')
+const setting_conf = require(`${namp_base_path}setting_conf.js`).setting_conf;//安装时配置
+const software = require(`${namp_base_path}software_conduct.js`);//软件解压处理.
+const fs = require('fs');
 const install_namp = require(`${namp_base_path}install_namp.js`);
+const config = require(`${namp_base_path}config.js`);
 //const string_decoder = require("string_decoder").StringDecoder;
 //const StringDecoder = new string_decoder();
 
@@ -34,13 +35,8 @@ ipcMain.on('orignal-window', () => {//还原
 process.stdin.setEncoding('utf8');
 start();
 function start(){
-    install_namp.is_install(`${__dirname}/config.json`,function(is_install,config){
-        if(!is_install){/*还没有安装*/
-            var open_path = '/index/install.html'
-        }else{/*已经安装*/
-            var open_path = '/index/index.html'
-        }
-        var windowOptions = {
+    install_namp.is_install(function(is_install,config){
+        var open_path/*是否安装的打开地址*/,windowOptions = {
             width: 992,
             minWidth: 992,
             height: 725,
@@ -48,6 +44,7 @@ function start(){
             title: app.getName(),
             frame: false
         }
+        is_install ? open_path = '/index/index.html' : open_path = '/index/install.html';
         if (process.platform === 'linux') {/*设置图标*/
             windowOptions.icon = path.join(__dirname, '/index/assets/app-icon/png/512.png')
         }else if(process.platform === 'win32'){
@@ -75,18 +72,19 @@ web.get('/get_drive',function(req,res){
 });
 
 /*初始安装*/
-var install_ini ={},install_record ={},install_step =1,install_request="",install_tmp;
+var install_record={},install_step=1,install_request="",install_tmp;
 web.get('/primary_install',function(req,res){
-    install_ini = url.parse(req.url,true).query;
     install_record = {};
-    install_socket();
-    returnAjax(req,res,{
-        "type":"success",
-        "info":" 正在检查中,请稍候 ...."
+    config.set({"install_ini":url.parse(req.url,true).query},function(config){
+        install_socket(config.install_ini/*socket安装*/);
+        returnAjax(req,res,{
+            "type":"success",
+            "info":" 正在检查中,请稍候 ...."
+        });
     });
 })
 
-function install_socket(){
+function install_socket(install_ini){
     io.on("connection",function(socket){/*socket.io 安装*/
         socket.on("install",function(d){
             install_request = d.request;
@@ -100,14 +98,14 @@ function install_socket(){
                             {"name":"mysql_data" ,"path":install_ini.mysql_data.replace(/\:.+/,':/'),"complete_path":install_ini.mysql_data},
                             {"name":"www_root" ,"path" : install_ini.www_root.replace(/\:.+/,':/'),"complete_path":install_ini.www_root}];
                         fn_global.check_path_all(install_tmp,function(check_ok,r){
-                            var o ={}
+                            var o ={};
                             if(check_ok){/*路径存在 ,开始安装*/
-                                o = {"install_step":install_step,"status":true,"data":install_ini}
+                                o = {"install_step":install_step,"status":true,"data":install_ini};
                             }else{
-                                o = {"install_step":"stop","status":false}
+                                o = {"install_step":"stop","status":false};
                             }
                             socket.emit("install",o);
-                        })
+                        });
                         break;
                     case 2:/*step 创建路径*/
                         ++install_step;
@@ -134,9 +132,20 @@ function install_socket(){
 }
 
 app.on("ready",()=>{
-    ipcMain.on('dev-tools-window',() =>{ //调试模式
+    ipcMain.on('dev-tools-window',() => { //调试模式
         mainWindow.openDevTools();
     })
 });
-web.use("/",express.static(__dirname+'/static'))
+web.use("/",express.static(__dirname+'/static'));
+
+/*-------- 测试 --------*/
+const command = require(`${namp_base_path}command.js`);
+web.get("/test",function(req,res){
+    command.spawn(`net start httpd`,function(r){
+        returnAjax(req,res,{
+            "type":"success",
+            "info":r
+        });
+    });
+});
 Server.listen("54222");

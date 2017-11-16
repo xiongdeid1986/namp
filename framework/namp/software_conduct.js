@@ -4,7 +4,7 @@ const path = require('path');
 const framework_path = path.resolve(__dirname,"..").replace(/\\/g,"/");
 const software_save_base_path = (framework_path+"/static/software/").replace(/\\/g,"/");//软件存放的基本路径
 var software_unzip_base_path = (path.resolve(framework_path,"..")+"/app/").replace(/\\/g,"/");//解压的基本路径 默认的app目录
-var start_ini/*安装初始数据*/,is_unzip = true,/*是否真的解压(用于测试是调试)*/all_soft_count = 0,soft_count = 0,all_confs = {},be_zip = [];
+var start_ini /*安装初始数据*/,is_unzip = true,/*是否真的解压(用于测试是调试)*/all_soft_count = 0,soft_count = 0,all_confs = {},be_zip = [];
 /*解压并安装软件*/
 exports._unzip = function(all_soft,socket,install_ini,callback,confirm_unzip,debug){/*需要解压的所有 软件版本*/
     is_unzip = confirm_unzip
