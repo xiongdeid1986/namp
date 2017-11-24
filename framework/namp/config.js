@@ -4,30 +4,30 @@ const config_base_path = `${path.resolve(__dirname, "..").replace(/\\\\/g, "/")}
 const config_path = `${config_base_path}config.json`;
 const fs = require("fs");
 
-function set(json,callback,debug){
+function set(json,c,d){
     if(!json){
         console.log("request resource JSON");
         return;
     }
-    get(function(config_json){
+    get(function(j){
         for(var p in json){
-            config_json[p] = json[p];
+            j[p] = json[p];
         }
-        if(debug) console.log(config_json);
-        let save_config_json;
+        if(d) console.log(j);
+        var s;
         try{
-            save_config_json = JSON.stringify(config_json);
+            s = JSON.stringify(j);
         }catch(err){
             console.log(err);
-            save_config_json = config_json;
+            s = j;
         }
-        fs.writeFile(config_path,save_config_json,function(e){
+        fs.writeFile(config_path,s,function(e){
             if(e)console.log(e);
-            if(callback)callback(config_json);
+            if(c)c(j);
         });
     });
 }
-function get(callback,debug){
+function get(c,debug){
     fs.readFile(config_path,"utf-8",function(e,data){
         data = data.toString();
         try{
@@ -38,7 +38,7 @@ function get(callback,debug){
         }
         if(e)console.log(e);
         if(debug)console.log(data);
-        if(callback)callback(data);
+        if(c)c(data);
     });
 }
 

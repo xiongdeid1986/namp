@@ -26,6 +26,19 @@
         }
         return getPrimaryFn(ajaxxy);
     }
+    function isForm(e, n) {
+        if (!n) n = 6;
+        if (n <= 0) {
+            console.warn('-------------' + n + '个上级查找不到Form,取消提交-----------------');
+            return false;
+        }
+        if ($(e).parent().get(0).tagName.toLowerCase() == 'form') {
+            return $(e).parent();
+        } else {
+            n--;
+            return isForm($(e).parent(), n);
+        }
+    }
     function get(d) {
         if (d) {
             console.log("-----------==get==-------------");
@@ -414,19 +427,6 @@
                 }
             }
             return false;
-        }
-        function isForm(e, n) {
-            if (!n) n = 6;
-            if (n <= 0) {
-                console.warn('-------------' + n + '个上级查找不到Form,取消提交-----------------');
-                return false;
-            }
-            if ($(e).parent().get(0).tagName.toLowerCase() == 'form') {
-                return $(e).parent();
-            } else {
-                n--;
-                return isForm($(e).parent(), n);
-            }
         }
         function IsEle(e, name, value, max, n) {
             /*查找元素的父级指定元素*/

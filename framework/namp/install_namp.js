@@ -15,7 +15,6 @@ exports.is_install = function(callback){
         if(callback) callback(IsInstall,config);
     });
 }
-
 function command_install(socket,fn){
     software_config.get(function(softJson){
         var soft_type_arr = [];
