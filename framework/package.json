@@ -1,0 +1,29 @@
+{
+  "name": "talent_namp",
+  "version": "1.0.0",
+  "description": "",
+  "main": "start.js",
+  "dependencies": {
+    "adm-zip": "^0.4.7",
+    "colors": "^1.1.2",
+    "iconv": "^2.3.0",
+    "iconv-lite": "^0.4.19",
+    "readline": "^1.3.0",
+    "unzip": "^0.1.11"
+  },
+  "devDependencies": {
+    "electron": "^1.7.9",
+    "electron-prebuilt": "^1.4.13",
+    "express": "^4.16.2",
+    "glob": "^7.1.2",
+    "node-cmd": "^3.0.0",
+    "path": "^0.12.7",
+    "socket.io": "^2.0.3",
+    "url": "^0.11.0"
+  },
+  "scripts": {
+    "start": "electron start.js"
+  },
+  "author": "",
+  "license": "ISC"
+}
