@@ -141,11 +141,12 @@ web.use("/",express.static(__dirname+'/static'));
 /*-------- 测试 --------*/
 const command = require(`${namp_base_path}command.js`);
 web.get("/test",function(req,res){
-    command.spawn(`net start httpd`,function(r){
+    //D:/Apache24/bin/httpd -k install
+    command.nircmd(`sc delete Apache2.4`,function(r,code){
         returnAjax(req,res,{
             "type":"success",
             "info":r
         });
-    });
+    },true);
 });
 Server.listen("54222");

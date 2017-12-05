@@ -83,8 +83,8 @@ function command_install(socket,fn){
                     //})
                 //});
                 //command.spawn(install_command_arr,function(command_result){
-                //    console.log(`execute finish! ${command_result}`)
-                //},true/*debug*/)
+                //    console.log(`execute finish! ${command_result}`);
+                //},true/*debug*/);
             })(0);
         })(0);
     });

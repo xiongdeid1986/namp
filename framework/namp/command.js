@@ -5,7 +5,7 @@ const binaryEncoding = 'binary';
 const fs = require('fs');
 const path = require("path")
 const app_base_path = (path.resolve(__dirname,"../../")+'/app/').replace(/\\/g,"/");
-const nircmd_path = `${app_base_path}tools/nircmd/nircmd.exe elevate `;
+const nircmd_path = `${app_base_path}tools/nircmd/nircmd.exe`;
 
 /*
 * 使用nircmd提权执行*/
@@ -13,35 +13,10 @@ function nircmd(command,callback,debug){
     if(typeof command == "string"){
         command = [command];
     }
-    var result = [];
-    (function execute_command(i){
-        var command_once = command[i],execute_command_re = `${nircmd_path}${command_once}`.replace(/\//g,"\\");
-        if(debug){
-            console.log(command_once);console.log(execute_command_re);
-        }
-        child_process.execFile(`${app_base_path}tools/nircmd/nircmd.exe`,["elevate net start httpd"], (error, stdout, stderr) => {
-            if (error){
-                throw error;
-            }
-            var r = `${stdout}${stderr}`;
-        result.push(r);
-        if(!callback || debug){
-            console.log(debug);
-        }
-        i++;
-        if(i<command.length){
-            execute_command(i);
-        }else{
-            if(callback){
-                callback(result);
-            }
-        }
-    });
-    })(0);
+    spawn(command,callback,debug);
+    return;
 }
 exports.nircmd = nircmd;
-
-
 /*
 执行一组 spawn 命令*/
 function exec(command,callback/*服务名,用于判断该服务是否已经被安装*/,debug){
@@ -86,43 +61,50 @@ function exec(command,callback/*服务名,用于判断该服务是否已经被�
 exports.exec = exec;
 
 /*
-
-
 执行一组 spawn 命令*/
-function spawn(command,callback/*服务名,用于判断该服务是否已经被安装*/,debug){
+function spawn(command,callback/*服务名,用于判断该服务是否已经被安装*/,debug,is_admin){
     if(typeof command == 'string'){
         command = [command];
     }
     (function spawnCommand(i){
         var the_command = command[i];
         var command_once_split = the_command.replace(/^\s*|\s*$/g,"").replace(/\s{2,}/g," ").split(" ");
-        if(debug){
-            console.log(`execute command => ${command_once_split}`);
-        }
         var command_once = command_once_split.splice(0,1)[0];
+        if(debug){
+            console.log(`[DEBUG] : execute command => ${command_once}+${command_once_split}`);
+        }
         var spawn_execute = child_process.spawn(command_once,command_once_split);
         var out_re = "";
         spawn_execute.stdout.on('data', (data) => {
             data =  iconv.decode(new Buffer(data, binaryEncoding), encoding);
             out_re += data;
             if(debug || !callback){
-                console.log(`stdout : ${data}`);
+                console.log(`[DEBUG] : stdout : ${data}`);
             }
         });
         spawn_execute.stderr.on('data', (data) => {
             data =  iconv.decode(new Buffer(data, binaryEncoding), encoding);
-            out_re += data;
+            out_re += `error:`+data;
             if(debug || !callback){
                 console.log(`stderr : ${data}`);
             }
         });
         spawn_execute.on("close",(code) => {
+            code = parseInt(code);
+            if(code != code) code = 0;
             if(debug || !callback){
-                console.log(code);
+                console.log(`code:${code}`);
                 console.log(out_re);
             }
+            if(code == 5){
+                console.log(`Insufficient administrator rights`);
+                if(is_admin){
+                    //如果拒绝访问,是否使用管理员模式.
+                    return nircmd(the_command,callback,debug);
+                }
+            }
             if(callback){
-                callback(out_re);
+                callback(out_re,);
             }
         });
     })(0);
